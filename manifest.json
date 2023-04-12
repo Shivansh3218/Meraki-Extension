@@ -1,0 +1,45 @@
+{
+  "name": "Meraki Extension",
+  "version": "1.0",
+  "manifest_version": 3,
+  "description": "Screen and Audio Recorder ",
+  "icons": {
+    "128": "./images/meraki128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": ["<all_urls>"],
+  "permissions": [
+    "scripting",
+    "webRequest",
+    "tabs",
+    "unlimitedStorage",
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabCapture",
+    "downloads"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["*://meet.google.com/*-*-*"],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "matches": ["<all_urls>"],
+      "resources": ["content.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "./images/meraki.png",
+    "icons": {
+      "16": "./images/meraki16.png",
+      "48": "./images/meraki.png",
+      "128": "./images/meraki.png"
+    }
+  }
+}

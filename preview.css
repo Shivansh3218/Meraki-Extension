@@ -1,0 +1,31 @@
+.video-preview{
+    width: 30vw;
+    height: 30vh;
+}
+.buttons{
+    display: flex;
+    margin: 2rem;
+    gap: 2rem;   
+}
+.btn {
+    background-color: DodgerBlue;
+    border: none;
+    color: white;
+    padding: 12px 30px;
+    cursor: pointer;
+    font-size: 20px;
+    border-radius: 5px;
+  }
+  li{
+    list-style: none;
+  }
+/* #download-video{
+    padding: 0.5rem;
+    font-weight: 400;
+    background-color: rgb(81, 163, 0);
+    border: 1px solid white;
+    color: aliceblue;
+    border-radius: 10px;
+    box-shadow: 7px 1px 10px -1px rgba(88,212,0,1);
+    cursor: pointer;
+} */
