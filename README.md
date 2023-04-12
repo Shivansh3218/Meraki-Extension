@@ -5,7 +5,7 @@
 ## How to Use
 ### Follow these steps to use the Meraki Extension:
 
-Clone the repository: git clone https://github.com/Shivansh3218/Screen-recorder-extension.git <br/>
+Clone the repository: git clone https://github.com/Shivansh3218/Meraki-Extension.git <br/>
 Open the Manage extension tab in your Chrome browser and enable developer mode.<br/>
 Click on "Load extension" and select the cloned folder.<br/>
 Join any Google Meet session and start recording the meeting attendance and video using the extension.<br/>
