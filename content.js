@@ -20,7 +20,7 @@ window.addEventListener("load", () => {
   let flag = true; // make if false to block non-meraki classes
   let meetingDuration;
   var record;
-  const redirectUrl = "http://192.168.101.4:5500/index.html";
+  const redirectUrl = "https://merd-api.merakilearn.org/attendance";
   // let newWindow1 = window.open(redirectUrl);
 
   let meetingCode = window.location.pathname.substring(1);
@@ -37,63 +37,95 @@ window.addEventListener("load", () => {
   // let videoDisplay = document.createElement("video");
   // videoDisplay.classList.add("video-feedback");
 
-  let recButton = document.createElement("button");
-  recButton.id = "recButton";
-  // recButton.className = "Jyj1Td CkXZgc";
-  recButton.type = "button";
-  recButton.innerHTML = "Rec";
-  recButton.style.border = "none";
-  recButton.style.backgroundColor = "#ea4335";
-  recButton.style.color = "white";
-  recButton.style.height = "2.6rem";
-  recButton.style.width = "2.5rem";
-  recButton.style.borderRadius = "50%";
-  recButton.style.cursor = "pointer";
+  const redDot = document.createElement("span");
+  redDot.style.height = "15px";
+  redDot.style.width = "15px";
+  redDot.style.backgroundColor = "#f44336";
+  redDot.style.borderRadius = "50%";
+
+  const recSessionTxt = document.createElement("span");
+  recSessionTxt.innerHTML = "Record Session";
+  recSessionTxt.style.fontSize = "18px";
+
+  let recButtonsContainer = document.createElement("div");
+  recButtonsContainer.style.display = "flex";
+  recButtonsContainer.style.justifyContent = "space-around";
+  recButtonsContainer.style.alignItems = "center";
+  recButtonsContainer.style.textAlign = "center";
+  recButtonsContainer.style.gap = "2px";
+  recButtonsContainer.id = "recButtonsContainer";
+  // recButtonsContainer.className = "Jyj1Td CkXZgc";
+  recButtonsContainer.style.border = "none";
+  recButtonsContainer.style.backgroundColor = "#6d6d6d";
+  recButtonsContainer.style.color = "white";
+  recButtonsContainer.style.height = "1.8rem";
+  recButtonsContainer.style.width = "10rem";
+  recButtonsContainer.style.padding = "0.5rem";
+  recButtonsContainer.style.borderRadius = "5px";
+  recButtonsContainer.style.cursor = "pointer";
+  recButtonsContainer.appendChild(redDot);
+  recButtonsContainer.appendChild(recSessionTxt);
+  recButtonsContainer.style.position = "fixed";
+  recButtonsContainer.style.top = "20px";
+  recButtonsContainer.style.left = "20px";
 
   let pauseBtn = document.createElement("button");
   pauseBtn.id = "pauseBtn";
   // recButton.className = "Jyj1Td CkXZgc";
-  pauseBtn.type = "button";
-  pauseBtn.innerHTML = "pause";
+  pauseBtn.innerHTML = "&#10074;&#10074;";
   pauseBtn.style.border = "none";
-  pauseBtn.style.backgroundColor = "blue";
+  pauseBtn.style.backgroundColor = "white";
   pauseBtn.style.color = "white";
-  pauseBtn.style.height = "2.6rem";
-  pauseBtn.style.width = "3.5rem";
+  pauseBtn.style.height = "1.5rem";
+  pauseBtn.style.width = "1.8rem";
   pauseBtn.style.borderRadius = "50%";
   pauseBtn.style.cursor = "pointer";
+  pauseBtn.style.color = "#6d6d6d";
 
-  // Adding Recording button to meet ui
-  let newButton = document.createElement("button");
-  newButton.id = "newButton";
-  newButton.className = "Jyj1Td CkXZgc";
-  newButton.type = "button";
-  newButton.innerHTML = "Record";
-  newButton.style.border = "none";
-  newButton.style.backgroundColor = "#ea4335";
-  newButton.style.color = "white";
-  newButton.style.height = "2.6rem";
-  newButton.style.width = "4.2rem";
-  newButton.style.borderRadius = "30px";
+    // create the stop button
+    let stopBtn = document.createElement("button");
+    stopBtn.id = "stopBtn";
+    stopBtn.innerHTML = "&#9632;";
+    stopBtn.style.border = "none";
+    stopBtn.style.backgroundColor = "white";
+    stopBtn.style.color = "white";
+    stopBtn.style.height = "1.5rem";
+    stopBtn.style.width = "1.8rem";
+    stopBtn.style.borderRadius = "50%";
+    stopBtn.style.cursor = "pointer";
+    stopBtn.style.color = "#6d6d6d";
 
-  recButton.addEventListener("click", () => {
-    if (recButton.innerHTML == "Rec") {
-      isRecordingVideo = true;
-      recButton.innerHTML = "Stop";
-    } else if (recButton.innerHTML == "Stop") {
-      isRecordingVideo = false;
-      recButton.innerHTML = "Rec";
-    }
+   // Adding meeting time button to meet ui
+   let meetTimeBtn = document.createElement("button");
+   meetTimeBtn.id = "meetTimeBtn";
+   meetTimeBtn.className = "Jyj1Td CkXZgc";
+   meetTimeBtn.type = "button";
+   meetTimeBtn.style.border = "none";
+   meetTimeBtn.style.color = "white";
+   meetTimeBtn.style.backgroundColor = "#6d6d6d";
+   meetTimeBtn.style.fontSize = "16px";
 
-    if (isRecordingVideo) {
+  recButtonsContainer.addEventListener("click", () => {
+    if (isRecordingVideo == false) {
       startRecording();
-
-      document.getElementsByClassName("Tmb7Fd")[0].appendChild(pauseBtn);
-    } else {
-      stopRecording();
+      recButtonsContainer.innerHTML = "";
+      recButtonsContainer.appendChild(redDot);
+      recButtonsContainer.appendChild(meetTimeBtn);
+      recButtonsContainer.appendChild(pauseBtn);
+      recButtonsContainer.appendChild(stopBtn);
     }
   });
   pauseBtn.addEventListener("click", () => handlePause());
+
+  stopBtn.addEventListener("click", (event) => {
+    event.stopPropagation();
+     if(isRecordingVideo == true){
+      stopRecording();
+      recButtonsContainer.innerHTML = "";
+      recButtonsContainer.appendChild(redDot);
+      recButtonsContainer.appendChild(recSessionTxt);
+     }
+  });
 
   function insertRecButton() {
     // console.log(document.getElementsByClassName("VfPpkd-kBDsod NtU4hc").length>0)
@@ -101,7 +133,7 @@ window.addEventListener("load", () => {
       // console.log(chrome.runtime.getURL('popup.html'))
       if (document.getElementsByClassName("VfPpkd-kBDsod NtU4hc").length > 0) {
         ui_buttons = document.getElementsByClassName("VfPpkd-kBDsod NtU4hc");
-        document.getElementsByClassName("jsNRx")[0].appendChild(recButton);
+        document.getElementsByClassName("jsNRx")[0].appendChild(recButtonsContainer);
       }
     } catch (error) {
       console.log(error);
@@ -116,10 +148,10 @@ window.addEventListener("load", () => {
     try {
       ui_buttons = document.getElementsByClassName("VfPpkd-kBDsod NtU4hc");
       // ui_buttons[1].click();
-      document.getElementsByClassName("Tmb7Fd")[0].appendChild(newButton);
+      // document.getElementsByClassName("Tmb7Fd")[0].appendChild(meetTimeBtn);
       if (!isAttendanceWorking) {
         isAttendanceWorking = true;
-        newButton.style.backgroundColor = "#00796b";
+        // meetTimeBtn.style.backgroundColor = "#00796b";
         StartTime = new Date().toLocaleTimeString();
         studentDetails.clear();
         studentsNameSet.clear();
@@ -131,7 +163,7 @@ window.addEventListener("load", () => {
         .getElementsByClassName("Gt6sbf QQrMi")
         .addEventListener("click", function () {
           if (isAttendanceWorking) {
-            stop();
+            // stop();
           }
         });
       clearInterval(tryInsertingButton);
@@ -210,36 +242,28 @@ window.addEventListener("load", () => {
       meeting_time: startTime.toISOString(),
     };
 
+    record.meet_duration = meetingDuration;
+    console.log(record, "Attendance Record");
+
+    let updatedRecord = {
+      'attendies_data': JSON.stringify(record)
+    }
+
     setTimeout(() => {
-      const api = "https://192.168.101.4:5500/index.html"; // endpoint where this data will go
+      const api = redirectUrl; // endpoint where this data will go
       fetch(api, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(record),
+        body: JSON.stringify(updatedRecord),
       })
         .then((response) => response.json())
-        .then((string) => {
-          console.log(`Title of our response :  ${string.title}`);
-          // window.open("http://192.168.101.4:5500/index.html");
-          // runtime.openOptionsPage()
-        })
         .catch((error) => {
           console.log(error);
         });
     }, 2000);
 
-    record.meet_duration = meetingDuration;
-    console.log(record, "Attendance Record");
-
-    let newRecord;
-
-
-
-    setTimeout(function () {
-      // newWindow1.postMessage(JSON.stringify(record), redirectUrl);
-    }, 10000);
   });
 
   function attendanceTracker() {
@@ -285,16 +309,16 @@ window.addEventListener("load", () => {
         goingToStop += 1;
       } else {
         meetingDuration = toTimeFormat(totalClassDuration);
-        newButton.innerHTML = toTimeFormat(totalClassDuration);
+        meetTimeBtn.innerHTML = toTimeFormat(totalClassDuration);
         totalClassDuration += 1;
         goingToStop = 0;
       }
       if (goingToStop == 2) {
         isAttendanceWorking = false;
-        newButton.innerHTML = "Track Attendance";
-        newButton.style.border = "2px solid #C5221F";
+        meetTimeBtn.innerHTML = "Track Attendance";
+        // meetTimeBtn.style.border = "2px solid #C5221F";
         goingToStop = 0;
-        stop();
+        // stop();
       }
     } else {
       try {
@@ -306,10 +330,10 @@ window.addEventListener("load", () => {
         goingToStop += 1;
         if (goingToStop == 2) {
           isAttendanceWorking = false;
-          newButton.innerHTML = "Track Attendance";
-          newButton.style.border = "2px solid #C5221F";
+          meetTimeBtn.innerHTML = "Track Attendance";
+          // meetTimeBtn.style.border = "2px solid #C5221F";
           goingToStop = 0;
-          stop();
+          // stop();
         }
       }
     }
@@ -351,18 +375,19 @@ window.addEventListener("load", () => {
 
   function handlePause() {
     if (recorder.state === "recording") {
-      pauseBtn.innerHTML = "play";
+      pauseBtn.innerHTML = "&#9654;";
       recorder.pause();
       console.log("recording is paused");
       // recording paused
     } else if (recorder.state === "paused") {
       recorder.resume();
-      pauseBtn.innerHTML = "pause";
+      pauseBtn.innerHTML = "&#10074;&#10074;";
       // resume recording
     }
   }
 
   async function stopRecording() {
+    isRecordingVideo = false;
     stop();
     recorder.stop();
     recorder.onstop = handleStop;
@@ -383,6 +408,7 @@ window.addEventListener("load", () => {
   }
 
   async function startRecording() {
+    isRecordingVideo = true;
     await setupStream();
     console.log("Recorder function is running");
     if (stream && audio) {
