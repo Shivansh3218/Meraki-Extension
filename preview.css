@@ -1,24 +1,37 @@
-.video-preview{
-    width: 30vw;
-    height: 30vh;
+.video-preview {
+  width: 30vw;
+  height: 30vh;
 }
-.buttons{
-    display: flex;
-    margin: 2rem;
-    gap: 2rem;   
+.buttons {
+  display: flex;
+  margin: 2rem;
+  gap: 2rem;
+}
+#loading-screen {
+  width: 50vw;
+  height: 90vh;
+  margin-left: 25vw;
+}
+.none {
+  display: none;
 }
 .btn {
-    background-color: DodgerBlue;
-    border: none;
-    color: white;
-    padding: 12px 30px;
-    cursor: pointer;
-    font-size: 20px;
-    border-radius: 5px;
-  }
-  li{
-    list-style: none;
-  }
+  background-color: DodgerBlue;
+  margin: 1rem;
+  border: none;
+  color: white;
+  padding: 12px 30px;
+  cursor: pointer;
+  font-size: 20px;
+  border-radius: 5px;
+}
+li {
+  list-style: none;
+}
+.video-player {
+  width: 40vw;
+  height: 40vh;
+}
 /* #download-video{
     padding: 0.5rem;
     font-weight: 400;

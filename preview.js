@@ -1,7 +1,8 @@
-let downloadBtn = document.querySelector("#video-download");
+// let downloadBtn = document.querySelector("#video-download");
 // document.querySelector("#btnExport").addEventListener("click", clearStorage);
-
-downloadBtn.addEventListener("click", getData);
+let loadingScreen = document.querySelector("#loading-screen");
+let buttonsContainer = document.querySelector(".buttons");
+// downloadBtn.addEventListener("click", getData);
 // getData()
 let resultArr = [];
 let totalSize = 1000;
@@ -58,6 +59,7 @@ async function getData() {
 
   // Create a video element
   const videoElement = document.createElement("video");
+  videoElement.classList.add("video-player");
   videoElement.src = URL.createObjectURL(videoBlob);
 
   videoElement.controls = true; // Set controls attribute to true
@@ -70,7 +72,9 @@ async function getData() {
 
   const downloadButton = document.createElement("button");
   downloadButton.textContent = "Download Video";
-  document.body.appendChild(downloadButton);
+  downloadButton.classList.add("btn");
+  buttonsContainer.appendChild(downloadButton);
+  // document.body.appendChild(downloadButton);
 
   // Add click event listener to download button
   downloadButton.addEventListener("click", () => {
@@ -126,20 +130,20 @@ chrome.storage.local.get("attendanceRecord", (result) => {
         meeting_title: meetingID,
       },
     ];
-    
+
     function convertSecondsToTime(seconds) {
       // Calculate hours, minutes, and remaining seconds
       const hours = Math.floor(seconds / 3600);
       seconds %= 3600;
       const minutes = Math.floor(seconds / 60);
       seconds %= 60;
-    
+
       // Construct the time string
       const timeString = `${hours} hours, ${minutes} minutes, ${seconds} seconds`;
-    
+
       return timeString;
     }
-    
+
     const table = document.createElement("table");
 
     const headerRow = document.createElement("tr");
@@ -186,7 +190,9 @@ chrome.storage.local.get("attendanceRecord", (result) => {
     // Add the data row to the table
     table.appendChild(dataRow);
 
+    loadingScreen.classList.add("none");
     document.body.appendChild(table);
+
     document
       .querySelector("#btnExport")
       .addEventListener("click", attendanceDownload);
@@ -201,5 +207,6 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       document.body.appendChild(link);
       link.click();
     }
+   getData()
   }
 });
