@@ -25,6 +25,7 @@ window.addEventListener("load", () => {
 
   let meetingCode = window.location.pathname.substring(1);
   let date = new Date();
+  let startMeetTime = new Date(date).toLocaleTimeString();
   let dd = date.getDate();
   let mm = date.toLocaleString("default", { month: "short" });
   let yyyy = date.getFullYear();
@@ -82,28 +83,28 @@ window.addEventListener("load", () => {
   pauseBtn.style.cursor = "pointer";
   pauseBtn.style.color = "#6d6d6d";
 
-    // create the stop button
-    let stopBtn = document.createElement("button");
-    stopBtn.id = "stopBtn";
-    stopBtn.innerHTML = "&#9632;";
-    stopBtn.style.border = "none";
-    stopBtn.style.backgroundColor = "white";
-    stopBtn.style.color = "white";
-    stopBtn.style.height = "1.5rem";
-    stopBtn.style.width = "1.8rem";
-    stopBtn.style.borderRadius = "50%";
-    stopBtn.style.cursor = "pointer";
-    stopBtn.style.color = "#6d6d6d";
+  // create the stop button
+  let stopBtn = document.createElement("button");
+  stopBtn.id = "stopBtn";
+  stopBtn.innerHTML = "&#9632;";
+  stopBtn.style.border = "none";
+  stopBtn.style.backgroundColor = "white";
+  stopBtn.style.color = "white";
+  stopBtn.style.height = "1.5rem";
+  stopBtn.style.width = "1.8rem";
+  stopBtn.style.borderRadius = "50%";
+  stopBtn.style.cursor = "pointer";
+  stopBtn.style.color = "#6d6d6d";
 
-   // Adding meeting time button to meet ui
-   let meetTimeBtn = document.createElement("button");
-   meetTimeBtn.id = "meetTimeBtn";
-   meetTimeBtn.className = "Jyj1Td CkXZgc";
-   meetTimeBtn.type = "button";
-   meetTimeBtn.style.border = "none";
-   meetTimeBtn.style.color = "white";
-   meetTimeBtn.style.backgroundColor = "#6d6d6d";
-   meetTimeBtn.style.fontSize = "16px";
+  // Adding meeting time button to meet ui
+  let meetTimeBtn = document.createElement("button");
+  meetTimeBtn.id = "meetTimeBtn";
+  meetTimeBtn.className = "Jyj1Td CkXZgc";
+  meetTimeBtn.type = "button";
+  meetTimeBtn.style.border = "none";
+  meetTimeBtn.style.color = "white";
+  meetTimeBtn.style.backgroundColor = "#6d6d6d";
+  meetTimeBtn.style.fontSize = "16px";
 
   recButtonsContainer.addEventListener("click", () => {
     if (isRecordingVideo == false) {
@@ -121,12 +122,12 @@ window.addEventListener("load", () => {
     let endButton = document.querySelector(".Gt6sbf");
     endButton.click();
     event.stopPropagation();
-     if(isRecordingVideo == true){
+    if (isRecordingVideo == true) {
       stopRecording();
       recButtonsContainer.innerHTML = "";
       recButtonsContainer.appendChild(redDot);
       recButtonsContainer.appendChild(recSessionTxt);
-     }
+    }
   });
 
   function insertRecButton() {
@@ -135,7 +136,9 @@ window.addEventListener("load", () => {
       // console.log(chrome.runtime.getURL('popup.html'))
       if (document.getElementsByClassName("VfPpkd-kBDsod NtU4hc").length > 0) {
         ui_buttons = document.getElementsByClassName("VfPpkd-kBDsod NtU4hc");
-        document.getElementsByClassName("jsNRx")[0].appendChild(recButtonsContainer);
+        document
+          .getElementsByClassName("jsNRx")[0]
+          .appendChild(recButtonsContainer);
       }
     } catch (error) {
       console.log(error);
@@ -237,6 +240,7 @@ window.addEventListener("load", () => {
     const end_time = new Date();
 
     record = {
+      startMeetTime: startMeetTime,
       attendee_names: JSON.stringify(sortedtstudentsNameSet),
       attendedDurationInSec: JSON.stringify(studentsAttendedDuration),
       meet_code: meetingCode,
@@ -248,8 +252,8 @@ window.addEventListener("load", () => {
     console.log(record, "Attendance Record");
 
     let updatedRecord = {
-      'attendies_data': JSON.stringify(record)
-    }
+      attendies_data: JSON.stringify(record),
+    };
 
     setTimeout(() => {
       const api = redirectUrl; // endpoint where this data will go
@@ -265,7 +269,6 @@ window.addEventListener("load", () => {
           console.log(error);
         });
     }, 2000);
-
   });
 
   function attendanceTracker() {
@@ -397,8 +400,8 @@ window.addEventListener("load", () => {
     const previewUrl = chrome.runtime.getURL("preview.html");
 
     chrome.runtime.sendMessage({ action: "createTab", url: previewUrl });
-    
-    chrome.runtime.sendMessage({ type: "attendance", meetRecord:record });
+
+    chrome.runtime.sendMessage({ type: "attendance", meetRecord: record });
   }
 
   function setupVideoFeedback() {

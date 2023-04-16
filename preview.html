@@ -8,13 +8,25 @@
     <link rel="stylesheet" href="preview.css" />
   </head>
   <body>
-    <h1>Preview Attendance and Video</h1>
-    <img id="loading-screen" src="https://media.tenor.com/zecVkmevzcIAAAAC/please-wait.gif" alt="">
-    <div class="buttons">
-      <p></p>
-      <!-- <button class="btn" id="video-download">Download</button> -->
-      <button class="btn" id="btnExport">Download Attendance</button>
+    <h1 id="page-heading">Meeting Recording</h1>
+    <div class="video-head">
+      <video id="recorded-video"></video>
+      <div class="meet-details-container">
+        <span id="meetingID">Meeting Id</span>
+        <span id="meetingDate"></span>
+        <span id="meetingTime"></span>
+        <button id="download-recording">Get Recording </button>
+      </div>
     </div>
+    <h2 class="student-details-heading">Student Attendance</h2>
+    <div id="attendance-data-outline">
+      <span id="totalStudents">Total Students</span>
+      <span id="totalMeetingDurationSpan">Total Meeting Duration</span>
+
+      <button id="download-attendance">Get Attendance Data</button>
+    </div>
+    <!-- <img id="loading-screen" src="https://media.tenor.com/zecVkmevzcIAAAAC/please-wait.gif" alt=""> -->
+
     <table></table>
   </body>
   <script src="background.js"></script>

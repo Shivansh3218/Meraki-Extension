@@ -1,4 +1,88 @@
-.video-preview {
+table {
+  margin: auto;
+  margin-top: 2rem;
+  width: 80%;
+  border-spacing: 0;
+}
+th {
+  text-align: left;
+  border-bottom: 1px solid black;
+  padding: 8px;
+}
+span{
+  font-size: medium;
+}
+td {
+  padding-top: 1rem;
+}
+th,
+td {
+  padding: 16px;
+  border: none;
+  border-bottom: 1px solid black;
+  text-align: left;
+}
+tr:not(:last-child) td {
+  border-bottom: none;
+}
+#page-heading {
+  text-align: center;
+}
+#recorded-video {
+  width: 450px;
+  height: 250px;
+}
+.meet-details-container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+#download-recording,
+#download-attendance {
+  padding: 8px, 16px, 8px, 16px;
+  font-size: 18px;
+  line-height: 30.6px;
+  align-items: center;
+  background-color: #48a145;
+  border-radius: 8px;
+  width: 15rem;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.video-head {
+  margin-left: 30%;
+  margin-top: 4rem;
+  display: flex;
+  gap: 2rem;
+}
+
+.student-details-heading {
+  text-align: center;
+  margin-top: 6rem;
+}
+#attendance-data-outline {
+  align-self: center;
+  margin-left: 30%;
+  display: flex;
+  align-items: baseline;
+  flex-direction: row;
+  gap: 5rem;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* .video-preview {
   width: 30vw;
   height: 30vh;
 }
@@ -31,7 +115,7 @@ li {
 .video-player {
   width: 40vw;
   height: 40vh;
-}
+} */
 /* #download-video{
     padding: 0.5rem;
     font-weight: 400;

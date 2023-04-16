@@ -1,5 +1,3 @@
-// let downloadBtn = document.querySelector("#video-download");
-// document.querySelector("#btnExport").addEventListener("click", clearStorage);
 let loadingScreen = document.querySelector("#loading-screen");
 let buttonsContainer = document.querySelector(".buttons");
 // downloadBtn.addEventListener("click", getData);
@@ -58,25 +56,15 @@ async function getData() {
   const videoBlob = concatenateBlobs(blobsArray);
 
   // Create a video element
-  const videoElement = document.createElement("video");
+  const videoElement = document.querySelector("#recorded-video");
   videoElement.classList.add("video-player");
   videoElement.src = URL.createObjectURL(videoBlob);
 
-  videoElement.controls = true; // Set controls attribute to true
-
-  // Append the video element to the DOM
-  document.body.appendChild(videoElement);
-
-  // Play the video
+  videoElement.controls = true; 
   videoElement.play();
 
-  const downloadButton = document.createElement("button");
-  downloadButton.textContent = "Download Video";
-  downloadButton.classList.add("btn");
-  buttonsContainer.appendChild(downloadButton);
-  // document.body.appendChild(downloadButton);
+  const downloadButton =document.querySelector("#download-recording")
 
-  // Add click event listener to download button
   downloadButton.addEventListener("click", () => {
     // Create a download link
     const downloadLink = document.createElement("a");
@@ -99,15 +87,6 @@ async function getData() {
   });
 }
 
-// function clearStorage() {
-//   chrome.storage.local.clear(function () {
-//     if (chrome.runtime.lastError) {
-//       console.error(chrome.runtime.lastError);
-//     } else {
-//       console.log("chrome.storage.local cleared successfully.");
-//     }
-//   });
-// }
 
 chrome.storage.local.get("attendanceRecord", (result) => {
   if (chrome.runtime.lastError) {
@@ -120,6 +99,25 @@ chrome.storage.local.get("attendanceRecord", (result) => {
     let attendedDurationInSec = attendance.attendedDurationInSec;
     let meetingTime = attendance.meeting_time;
     let meet_duration = attendance.meet_duration;
+    let date =  new Date();
+    let extractedDate = new Date(date);
+    let startTimeString = attendance.startMeetTime;
+    let dateString =  extractedDate.toLocaleDateString();
+    let timeString = extractedDate.toLocaleTimeString();
+    let meetingIDSpan = document.querySelector("#meetingID");
+    let meetingDateSpan = document.querySelector("#meetingDate");
+    let meetingTimeSpan = document.querySelector("#meetingTime");
+    let totalStudentsSpan = document.querySelector("#totalStudents");
+    let totalMeetingDurationSpan = document.querySelector("#totalMeetingDurationSpan");
+
+
+    totalMeetingDurationSpan.innerText+= `: ${meet_duration}`
+    totalStudentsSpan.innerText+= `: ${JSON.parse(attendeesNames).length}`
+    meetingIDSpan.innerText+= `: ${meetingID}`
+    meetingDateSpan.innerText+= `${dateString}`
+    meetingTimeSpan.innerText+= `${startTimeString} to ${timeString}`
+
+    console.log(attendance)
 
     let data = [
       {
@@ -148,53 +146,57 @@ chrome.storage.local.get("attendanceRecord", (result) => {
 
     const headerRow = document.createElement("tr");
 
-    const nameHeader = document.createElement("th");
-    nameHeader.textContent = "Total Meeting duration";
-    headerRow.appendChild(nameHeader);
-
-    const idHeader = document.createElement("th");
-    idHeader.textContent = "Meeting id";
-    headerRow.appendChild(idHeader);
-
     const attendeeHeader = document.createElement("th");
     attendeeHeader.textContent = "attendee_names";
     headerRow.appendChild(attendeeHeader);
+
+    const nameHeader = document.createElement("th");
+    nameHeader.textContent = "Total Meeting duration";
+    headerRow.appendChild(nameHeader);
 
     const meetDurationHeader = document.createElement("th");
     meetDurationHeader.textContent = "attendedDurationInSec";
     headerRow.appendChild(meetDurationHeader);
 
-    table.appendChild(headerRow);
 
+    // const idHeader = document.createElement("th");
+    // idHeader.textContent = "Meeting id";
+    // headerRow.appendChild(idHeader);
+
+   
+    table.appendChild(headerRow);
+    
     const dataRow = document.createElement("tr");
+    table.appendChild(dataRow);
+
+    const nameCell = document.createElement("td");
+    nameCell.innerHTML = data[0].attendee_names
+      .map((skill) => `${skill}`)
+      .join("");
+    dataRow.appendChild(nameCell);
+
     const duration_cell = document.createElement("td");
     duration_cell.textContent = data[0].meet_duration;
     dataRow.appendChild(duration_cell);
 
-    const title_cell = document.createElement("td");
-    title_cell.textContent = data[0].meeting_title;
-    dataRow.appendChild(title_cell);
-
-    const nameCell = document.createElement("td");
-    nameCell.innerHTML = data[0].attendee_names
-      .map((skill) => `<li>${skill}</li>`)
-      .join("");
-    dataRow.appendChild(nameCell);
-
     const attendanceDurationCell = document.createElement("td");
     attendanceDurationCell.innerHTML = data[0].attendedDurationInSec
-      .map((time) => `<li>${convertSecondsToTime(time)}</li>`)
+      .map((time) => `${convertSecondsToTime(time)}`)
       .join("");
     dataRow.appendChild(attendanceDurationCell);
 
-    // Add the data row to the table
-    table.appendChild(dataRow);
+    // const title_cell = document.createElement("td");
+    // title_cell.textContent = data[0].meeting_title;
+    // dataRow.appendChild(title_cell);
 
-    loadingScreen.classList.add("none");
+   
+    // Add the data row to the table
+
+    // loadingScreen.classList.add("none");
     document.body.appendChild(table);
 
     document
-      .querySelector("#btnExport")
+      .querySelector("#download-attendance")
       .addEventListener("click", attendanceDownload);
 
     function attendanceDownload() {
