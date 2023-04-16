@@ -9,7 +9,7 @@ th {
   border-bottom: 1px solid black;
   padding: 8px;
 }
-span{
+span {
   font-size: medium;
 }
 td {
@@ -63,24 +63,18 @@ tr:not(:last-child) td {
   text-align: center;
   margin-top: 6rem;
 }
+#outline-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
 #attendance-data-outline {
   align-self: center;
-  margin-left: 30%;
   display: flex;
   align-items: baseline;
   flex-direction: row;
   gap: 5rem;
 }
-
-
-
-
-
-
-
-
-
-
 
 /* .video-preview {
   width: 30vw;
