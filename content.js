@@ -6,6 +6,7 @@ window.addEventListener("load", () => {
   let chunks = [];
   let recorder = null;
   let isRecordingVideo = false;
+  let intervalId;
 
   //attendance tracker variables
 
@@ -105,6 +106,9 @@ window.addEventListener("load", () => {
   meetTimeBtn.style.color = "white";
   meetTimeBtn.style.backgroundColor = "#6d6d6d";
   meetTimeBtn.style.fontSize = "16px";
+
+  // "duration" variable - to calculate duration of video recording:-
+  let duration = 0;
 
   recButtonsContainer.addEventListener("click", () => {
     if (isRecordingVideo == false) {
@@ -314,13 +318,13 @@ window.addEventListener("load", () => {
         goingToStop += 1;
       } else {
         meetingDuration = toTimeFormat(totalClassDuration);
-        meetTimeBtn.innerHTML = toTimeFormat(totalClassDuration);
+        // meetTimeBtn.innerHTML = toTimeFormat(totalClassDuration);
         totalClassDuration += 1;
         goingToStop = 0;
       }
       if (goingToStop == 2) {
         isAttendanceWorking = false;
-        meetTimeBtn.innerHTML = "Track Attendance";
+        // meetTimeBtn.innerHTML = "Track Attendance";
         // meetTimeBtn.style.border = "2px solid #C5221F";
         goingToStop = 0;
         // stop();
@@ -335,7 +339,7 @@ window.addEventListener("load", () => {
         goingToStop += 1;
         if (goingToStop == 2) {
           isAttendanceWorking = false;
-          meetTimeBtn.innerHTML = "Track Attendance";
+          // meetTimeBtn.innerHTML = "Track Attendance";
           // meetTimeBtn.style.border = "2px solid #C5221F";
           goingToStop = 0;
           // stop();
@@ -380,18 +384,38 @@ window.addEventListener("load", () => {
 
   function handlePause() {
     if (recorder.state === "recording") {
+      // pausing video recording timer:-
+      clearInterval(intervalId);
+      // -----------
       pauseBtn.innerHTML = "&#9654;";
       recorder.pause();
       console.log("recording is paused");
       // recording paused
     } else if (recorder.state === "paused") {
+      // resume recording
       recorder.resume();
       pauseBtn.innerHTML = "&#10074;&#10074;";
-      // resume recording
+      // resume the timer button:-
+      intervalId = setInterval(() => {
+        const hours = Math.floor(duration / 3600000)
+          .toString()
+          .padStart(2, "0");
+        const minutes = Math.floor((duration % 3600000) / 60000)
+          .toString()
+          .padStart(2, "0");
+        const seconds = ((duration % 60000) / 1000).toFixed(0).padStart(2, "0");
+        meetTimeBtn.innerText = `${hours}:${minutes}:${seconds}`;
+        duration += 1000;
+      }, 1000);
+      // --------------
     }
   }
 
   async function stopRecording() {
+    // stop timer for video duration calculation:-
+    clearInterval(intervalId);
+    // ----------------
+
     isRecordingVideo = false;
     stop();
     recorder.stop();
@@ -413,6 +437,20 @@ window.addEventListener("load", () => {
   }
 
   async function startRecording() {
+    // ----start timer for duration calculation of video ---------------
+    intervalId = setInterval(() => {
+      const hours = Math.floor(duration / 3600000)
+        .toString()
+        .padStart(2, "0");
+      const minutes = Math.floor((duration % 3600000) / 60000)
+        .toString()
+        .padStart(2, "0");
+      const seconds = ((duration % 60000) / 1000).toFixed(0).padStart(2, "0");
+      meetTimeBtn.innerText = `${hours}:${minutes}:${seconds}`;
+      duration += 1000;
+    }, 1000);
+    // ---------------------
+
     isRecordingVideo = true;
     await setupStream();
     console.log("Recorder function is running");
