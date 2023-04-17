@@ -75,6 +75,14 @@ tr:not(:last-child) td {
   flex-direction: row;
   gap: 5rem;
 }
+.none {
+  display: none;
+}
+#loader{
+  width: 450px;
+  height: 250px;
+  position: absolute;
+}
 
 /* .video-preview {
   width: 30vw;
@@ -90,9 +98,7 @@ tr:not(:last-child) td {
   height: 90vh;
   margin-left: 25vw;
 }
-.none {
-  display: none;
-}
+
 .btn {
   background-color: DodgerBlue;
   margin: 1rem;
