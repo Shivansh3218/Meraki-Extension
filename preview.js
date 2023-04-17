@@ -120,74 +120,95 @@ chrome.storage.local.get("attendanceRecord", (result) => {
 
     console.log(attendance);
 
-    let data = [
-      {
-        attendedDurationInSec: JSON.parse(attendedDurationInSec),
-        attendee_names: JSON.parse(attendeesNames),
-        meet_duration: meet_duration,
-        meeting_time: meetingTime,
-        meeting_title: meetingID,
-      },
-    ];
+    let data = {
+      attendedDurationInSec: JSON.parse(attendedDurationInSec),
+      attendee_names: JSON.parse(attendeesNames),
+      meet_duration: meet_duration,
+      meeting_time: meetingTime,
+      meeting_title: meetingID,
+    };
+    console.log(data);
 
     function convertSecondsToTime(seconds) {
       // Calculate hours, minutes, and remaining seconds
-      const hours = Math.floor(seconds / 3600);
+      let hours = Math.floor(seconds / 3600);
       seconds %= 3600;
-      const minutes = Math.floor(seconds / 60);
+      let minutes = Math.floor(seconds / 60);
       seconds %= 60;
 
       // Construct the time string
-      const timeString = `${hours} hours, ${minutes} minutes, ${
-        seconds - 1
-      } seconds`;
+      if(minutes<9){
+        minutes = '0'+minutes
+      }
+      if(hours<9){
+        hours= '0'+hours
+      }
+      const timeString = `${hours}:${minutes}:${seconds - 1} `;
 
       return timeString;
     }
 
-    const table = document.createElement("table");
+    const tableBody = document.querySelector("#myTable tbody");
+    for (let i = 0; i < Math.max(data.attendee_names.length, 1); i++) {
+      const row = document.createElement("tr");
+      const array1Cell = document.createElement("td");
+      array1Cell.textContent = data.attendee_names[i] || ""; 
+      row.appendChild(array1Cell);
 
-    const headerRow = document.createElement("tr");
+      const myStringCell = document.createElement("td");
+      myStringCell.textContent = i === 0 ? meet_duration : ""; 
+      row.appendChild(myStringCell);
+      // Create a cell for array2 data
+      const array2Cell = document.createElement("td");
+      array2Cell.textContent =
+        convertSecondsToTime(data.attendedDurationInSec[i]) || ""; 
+      row.appendChild(array2Cell);
 
-    const attendeeHeader = document.createElement("th");
-    attendeeHeader.textContent = "Attendee Names";
-    headerRow.appendChild(attendeeHeader);
+      // Create a cell for myString data
 
-    const nameHeader = document.createElement("th");
-    nameHeader.textContent = "Total Meeting duration";
-    headerRow.appendChild(nameHeader);
 
-    const meetDurationHeader = document.createElement("th");
-    meetDurationHeader.textContent = "Attended Meeting duration";
-    headerRow.appendChild(meetDurationHeader);
+      // Append the row to the table body
+      tableBody.appendChild(row);
+    }
+
+    // const headerRow = document.createElement("tr");
+
+    // const attendeeHeader = document.createElement("th");
+    // attendeeHeader.textContent = "Attendee Names";
+    // headerRow.appendChild(attendeeHeader);
+
+    // const nameHeader = document.createElement("th");
+    // nameHeader.textContent = "Total Meeting duration";
+    // headerRow.appendChild(nameHeader);
+
+    // const meetDurationHeader = document.createElement("th");
+    // meetDurationHeader.textContent = "Attended Meeting duration";
+    // headerRow.appendChild(meetDurationHeader);
 
     // const idHeader = document.createElement("th");
     // idHeader.textContent = "Meeting id";
     // headerRow.appendChild(idHeader);
 
-    table.appendChild(headerRow);
+    // table.appendChild(headerRow);
 
-    const dataRow = document.createElement("tr");
-    table.appendChild(dataRow);
+    // const dataRow = document.createElement("tr");
+    // table.appendChild(dataRow);
 
-    const nameCell = document.createElement("td");
-    nameCell.innerHTML = data[0].attendee_names
-      .map((name, index) => {
-        if (index === 0) return `<strong>${name} Teacher</strong>`;
-        else return `${name}`;
-      })
-      .join("");
-    dataRow.appendChild(nameCell);
+    // const nameCell = document.createElement("td");
+    // nameCell.innerHTML = data[0].attendee_names
+    //   .map((name) => `${name}`)
+    //   .join("");
+    // dataRow.appendChild(nameCell);
 
-    const duration_cell = document.createElement("td");
-    duration_cell.textContent = data[0].meet_duration;
-    dataRow.appendChild(duration_cell);
+    // const duration_cell = document.createElement("td");
+    // duration_cell.textContent = data[0].meet_duration;
+    // dataRow.appendChild(duration_cell);
 
-    const attendanceDurationCell = document.createElement("td");
-    attendanceDurationCell.innerHTML = data[0].attendedDurationInSec
-      .map((time) => `${convertSecondsToTime(time)}`)
-      .join("");
-    dataRow.appendChild(attendanceDurationCell);
+    // const attendanceDurationCell = document.createElement("td");
+    // attendanceDurationCell.innerHTML = data[0].attendedDurationInSec
+    //   .map((time) => `${convertSecondsToTime(time)}`)
+    //   .join("");
+    // dataRow.appendChild(attendanceDurationCell);
 
     // const title_cell = document.createElement("td");
     // title_cell.textContent = data[0].meeting_title;
@@ -196,14 +217,14 @@ chrome.storage.local.get("attendanceRecord", (result) => {
     // Add the data row to the table
 
     // loadingScreen.classList.add("none");
-    document.body.appendChild(table);
+    // document.body.appendChild(table);
 
     document
       .querySelector("#download-attendance")
       .addEventListener("click", attendanceDownload);
 
     function attendanceDownload() {
-      const html = table.outerHTML;
+      const html = tableBody.outerHTML;
       const Datablob = new Blob([html], { type: "text/html" });
       const url = URL.createObjectURL(Datablob);
       const link = document.createElement("a");
