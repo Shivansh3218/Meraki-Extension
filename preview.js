@@ -174,6 +174,7 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       // Append the row to the table body
       tableBody.appendChild(row);
       document.querySelector("#tableLoader").classList.add("none");
+      tableBody.classList.remove("none")
     }
 
     // const headerRow = document.createElement("tr");
