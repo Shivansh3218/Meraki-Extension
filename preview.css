@@ -83,7 +83,12 @@ tr:not(:last-child) td {
   height: 250px;
   position: absolute;
 }
-
+#tableLoader{
+  margin: auto;
+  width: 450px;
+  height: 250px;
+  position: absolute;
+}
 /* .video-preview {
   width: 30vw;
   height: 30vh;

@@ -101,9 +101,9 @@ chrome.storage.local.get("attendanceRecord", (result) => {
     let meet_duration = attendance.meet_duration;
     let date = new Date();
     let extractedDate = new Date(date);
-    let startTimeString = attendance.startMeetTime;
+    let startTimeString = attendance.startMeetTime.substring(0,4)+" "+ attendance.startMeetTime.substring(8);
     let dateString = date.toString().slice(4, 15);
-    let timeString = extractedDate.toLocaleTimeString();
+    let timeString = extractedDate.toLocaleTimeString().substring(0,4)+" "+ extractedDate.toLocaleTimeString().substring(8);
     let meetingIDSpan = document.querySelector("#meetingID");
     let meetingDateSpan = document.querySelector("#meetingDate");
     let meetingTimeSpan = document.querySelector("#meetingTime");
@@ -135,40 +135,45 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       seconds %= 3600;
       let minutes = Math.floor(seconds / 60);
       seconds %= 60;
-
+      seconds = seconds - 1;
       // Construct the time string
-      if(minutes<9){
-        minutes = '0'+minutes
+      if (minutes <= 9) {
+        minutes = "0" + minutes;
       }
-      if(hours<9){
-        hours= '0'+hours
+      if (hours <= 9) {
+        hours = "0" + hours;
       }
-      const timeString = `${hours}:${minutes}:${seconds - 1} `;
+      if (seconds <= 9) {
+        seconds = "0" + seconds;
+      }
+      const timeString =   hours === "00"
+      ? `${minutes}:${seconds}`
+      : `${hours}:${minutes}:${seconds}`;
 
       return timeString;
     }
 
-    const tableBody = document.querySelector("#myTable tbody");
+    const tableBody = document.querySelector("#myTable");
     for (let i = 0; i < Math.max(data.attendee_names.length, 1); i++) {
       const row = document.createElement("tr");
       const array1Cell = document.createElement("td");
-      array1Cell.textContent = data.attendee_names[i] || ""; 
+      array1Cell.textContent = data.attendee_names[i] || "";
       row.appendChild(array1Cell);
 
       const myStringCell = document.createElement("td");
-      myStringCell.textContent = i === 0 ? meet_duration : ""; 
+      myStringCell.textContent = i === 0 ? meet_duration : meet_duration;
       row.appendChild(myStringCell);
       // Create a cell for array2 data
       const array2Cell = document.createElement("td");
       array2Cell.textContent =
-        convertSecondsToTime(data.attendedDurationInSec[i]) || ""; 
+        convertSecondsToTime(data.attendedDurationInSec[i]) || "";
       row.appendChild(array2Cell);
 
       // Create a cell for myString data
 
-
       // Append the row to the table body
       tableBody.appendChild(row);
+      document.querySelector("#tableLoader").classList.add("none");
     }
 
     // const headerRow = document.createElement("tr");
@@ -224,13 +229,26 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       .addEventListener("click", attendanceDownload);
 
     function attendanceDownload() {
-      const html = tableBody.outerHTML;
-      const Datablob = new Blob([html], { type: "text/html" });
-      const url = URL.createObjectURL(Datablob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "Attendance-Table.html";
-      document.body.appendChild(link);
+      var csv = "";
+      for (var i = 0; i < tableBody.rows.length; i++) {
+        var row = tableBody.rows[i];
+        for (var j = 0; j < row.cells.length; j++) {
+          var cell = row.cells[j].innerText.replace(/"/g, '""');
+          if (j > 0) {
+            csv += ",";
+          }
+          csv += '"' + cell + '"';
+        }
+        csv += "\n";
+      }
+
+      // Create a temporary anchor element and trigger the download
+      var link = document.createElement("a");
+      link.setAttribute(
+        "href",
+        "data:text/csv;charset=utf-8," + encodeURIComponent(csv)
+      );
+      link.setAttribute("download", "table.csv");
       link.click();
     }
     getData();

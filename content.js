@@ -123,8 +123,8 @@ window.addEventListener("load", () => {
   pauseBtn.addEventListener("click", () => handlePause());
 
   stopBtn.addEventListener("click", (event) => {
-    // let endButton = document.querySelector(".Gt6sbf");
-    // endButton.click();
+    let endButton = document.querySelector(".Gt6sbf");
+    endButton.click();
     event.stopPropagation();
     if (isRecordingVideo == true) {
       stopRecording();
