@@ -414,6 +414,8 @@ window.addEventListener("load", () => {
   async function stopRecording() {
     // stop timer for video duration calculation:-
     clearInterval(intervalId);
+    duration = 0;
+    meetTimeBtn.innerText = "00:00:00";
     // ----------------
 
     isRecordingVideo = false;
