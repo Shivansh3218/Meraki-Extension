@@ -429,6 +429,8 @@ window.addEventListener("load", () => {
   async function stopRecording() {
     // stop timer for video duration calculation:-
     clearInterval(intervalId);
+    duration = 0;
+    meetTimeBtn.innerText = "00:00:00";
     // ----------------
 
     isRecordingVideo = false;
@@ -445,6 +447,17 @@ window.addEventListener("load", () => {
 
   function setupVideoFeedback() {
     if (stream) {
+      intervalId = setInterval(() => {
+        const hours = Math.floor(duration / 3600000)
+          .toString()
+          .padStart(2, "0");
+        const minutes = Math.floor((duration % 3600000) / 60000)
+          .toString()
+          .padStart(2, "0");
+        const seconds = ((duration % 60000) / 1000).toFixed(0).padStart(2, "0");
+        meetTimeBtn.innerText = `${hours}:${minutes}:${seconds}`;
+        duration += 1000;
+      }, 1000);
       console.log(stream, "This is stream");
     } else {
       console.log("No stream available");
@@ -452,20 +465,6 @@ window.addEventListener("load", () => {
   }
 
   async function startRecording() {
-    // ----start timer for duration calculation of video ---------------
-    intervalId = setInterval(() => {
-      const hours = Math.floor(duration / 3600000)
-        .toString()
-        .padStart(2, "0");
-      const minutes = Math.floor((duration % 3600000) / 60000)
-        .toString()
-        .padStart(2, "0");
-      const seconds = ((duration % 60000) / 1000).toFixed(0).padStart(2, "0");
-      meetTimeBtn.innerText = `${hours}:${minutes}:${seconds}`;
-      duration += 1000;
-    }, 1000);
-    // ---------------------
-
     isRecordingVideo = true;
     await setupStream();
     console.log("Recorder function is running");
