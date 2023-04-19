@@ -61,10 +61,12 @@ async function getData() {
   videoElement.src = URL.createObjectURL(videoBlob);
   let loader = document.querySelector("#loader");
   loader.classList.add("none");
-  videoElement.controls = true;
-  videoElement.play();
+  // videoElement.controls = true;
+  // videoElement.play();
 
   const downloadButton = document.querySelector("#download-recording");
+
+  document.querySelector("#download-recording").classList.remove("pointerNone");
 
   downloadButton.addEventListener("click", () => {
     // Create a download link
@@ -77,6 +79,8 @@ async function getData() {
     downloadLink.click();
 
     // Clean up
+
+    resultArr = [];
     downloadLink.remove();
   });
   chrome.storage.local.clear(function () {
@@ -101,9 +105,15 @@ chrome.storage.local.get("attendanceRecord", (result) => {
     let meet_duration = attendance.meet_duration;
     let date = new Date();
     let extractedDate = new Date(date);
-    let startTimeString = attendance.startMeetTime.substring(0,4)+" "+ attendance.startMeetTime.substring(8);
+    let startTimeString =
+      attendance.startMeetTime.substring(0, 4) +
+      " " +
+      attendance.startMeetTime.substring(8);
     let dateString = date.toString().slice(4, 15);
-    let timeString = extractedDate.toLocaleTimeString().substring(0,4)+" "+ extractedDate.toLocaleTimeString().substring(8);
+    let timeString =
+      extractedDate.toLocaleTimeString().substring(0, 4) +
+      " " +
+      extractedDate.toLocaleTimeString().substring(8);
     let meetingIDSpan = document.querySelector("#meetingID");
     let meetingDateSpan = document.querySelector("#meetingDate");
     let meetingTimeSpan = document.querySelector("#meetingTime");
@@ -146,9 +156,10 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       if (seconds <= 9) {
         seconds = "0" + seconds;
       }
-      const timeString =   hours === "00"
-      ? `${minutes}:${seconds}`
-      : `${hours}:${minutes}:${seconds}`;
+      const timeString =
+        hours === "00"
+          ? `${minutes}:${seconds}`
+          : `${hours}:${minutes}:${seconds}`;
 
       return timeString;
     }
@@ -174,7 +185,11 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       // Append the row to the table body
       tableBody.appendChild(row);
       document.querySelector("#tableLoader").classList.add("none");
-      tableBody.classList.remove("none")
+      tableBody.classList.remove("none");
+
+      document
+        .querySelector("#download-attendance")
+        .classList.remove("pointerNone");
     }
 
     // const headerRow = document.createElement("tr");

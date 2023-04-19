@@ -1,5 +1,20 @@
 window.addEventListener("load", () => {
   console.log("this is the content.js file of extension");
+
+  // setInterval(()=>{
+    
+  // var participantList = document.querySelector('.AE8xFb');
+  //   participantList.addEventListener("DOMNodeInserted", function(event) {
+  //     console.log("running on kjashndioujahsiudhasiuhdiasghduihsauihdiuosahdui9haws")
+  //     // Get the name and entry time of the new participant
+  //     var participantName = document.querySelector(".zWGUib").textContent;
+  //     var entryTime = new Date().getTime();
+  
+  //     console.log(participantName, entryTime ,"This is the entry name and time")
+  //   })
+  // },1000)
+
+
   let stream = null;
   let audio = null;
   let mixedStream = null;

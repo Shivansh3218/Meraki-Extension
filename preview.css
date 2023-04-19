@@ -90,6 +90,9 @@ tr:not(:last-child) td {
   position: absolute;
   bottom: 1rem;
 }
+.pointerNone{
+  pointer-events: none;
+}
 /* .video-preview {
   width: 30vw;
   height: 30vh;
