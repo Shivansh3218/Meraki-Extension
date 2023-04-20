@@ -1,5 +1,4 @@
 window.addEventListener("load", () => {
-
   // setInterval(()=>{
 
   // var participantList = document.querySelector('.AE8xFb');
@@ -21,7 +20,6 @@ window.addEventListener("load", () => {
   let isRecordingVideo = false;
   let intervalId;
   const previewUrl = chrome.runtime.getURL("preview.html");
-
 
   //attendance tracker variables
 
@@ -127,6 +125,9 @@ window.addEventListener("load", () => {
 
   recButtonsContainer.addEventListener("click", () => {
     if (isRecordingVideo == false) {
+      clearInterval(intervalId);
+      duration = 0;
+      meetTimeBtn.innerText = "00:00:00";
       startRecording();
       recButtonsContainer.innerHTML = "";
       recButtonsContainer.appendChild(redDot);
@@ -140,6 +141,7 @@ window.addEventListener("load", () => {
   stopBtn.addEventListener("click", (event) => {
     let endButton = document.querySelector(".Gt6sbf");
     endButton.click();
+    location.replace("https://meet.google.com/?authuser=0");
     event.stopPropagation();
     if (isRecordingVideo == true) {
       stopRecording();
@@ -235,7 +237,6 @@ window.addEventListener("load", () => {
   };
 
   let stop = (STOP = () => {
-
     clearInterval(startAttendanceTracker);
 
     //   let studentsJoiningTime = [];
@@ -427,7 +428,6 @@ window.addEventListener("load", () => {
     recorder.stop();
     recorder.onstop = handleStop;
 
-    
     chrome.runtime.sendMessage({ action: "createTab", url: previewUrl });
 
     chrome.runtime.sendMessage({ type: "attendance", meetRecord: record });
@@ -455,7 +455,10 @@ window.addEventListener("load", () => {
     isRecordingVideo = true;
     await setupStream();
 
-    chrome.runtime.sendMessage({ message: "closePreview", closeURL: previewUrl  });
+    chrome.runtime.sendMessage({
+      message: "closePreview",
+      closeURL: previewUrl,
+    });
 
     if (stream && audio) {
       mixedStream = new MediaStream([
@@ -464,11 +467,15 @@ window.addEventListener("load", () => {
       ]);
 
       recorder = new MediaRecorder(mixedStream);
-
       recorder.ondataavailable = handleDataAvailable;
       recorder.start(1000);
       recorder.onstop = stopRecording;
     } else {
+      recButtonsContainer.innerHTML = "";
+      recButtonsContainer.appendChild(redDot);
+      recButtonsContainer.appendChild(recSessionTxt);
+      isRecordingVideo = false;
+
       console.log("No stream available.");
     }
   }
