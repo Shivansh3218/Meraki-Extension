@@ -1,19 +1,17 @@
 window.addEventListener("load", () => {
-  console.log("this is the content.js file of extension");
 
   // setInterval(()=>{
-    
+
   // var participantList = document.querySelector('.AE8xFb');
   //   participantList.addEventListener("DOMNodeInserted", function(event) {
   //     console.log("running on kjashndioujahsiudhasiuhdiasghduihsauihdiuosahdui9haws")
   //     // Get the name and entry time of the new participant
   //     var participantName = document.querySelector(".zWGUib").textContent;
   //     var entryTime = new Date().getTime();
-  
+
   //     console.log(participantName, entryTime ,"This is the entry name and time")
   //   })
   // },1000)
-
 
   let stream = null;
   let audio = null;
@@ -22,13 +20,15 @@ window.addEventListener("load", () => {
   let recorder = null;
   let isRecordingVideo = false;
   let intervalId;
+  const previewUrl = chrome.runtime.getURL("preview.html");
+
 
   //attendance tracker variables
 
   let studentDetails = new Map();
   let studentsNameSet = new Set();
   let ui_buttons;
-  let totalClassDuration = 0;
+  let totalClassDuration = 1;
   let goingToStop = 0;
   let isAttendanceWorking = false;
   let buttonClickInd = 0;
@@ -150,9 +150,7 @@ window.addEventListener("load", () => {
   });
 
   function insertRecButton() {
-    // console.log(document.getElementsByClassName("VfPpkd-kBDsod NtU4hc").length>0)
     try {
-      // console.log(chrome.runtime.getURL('popup.html'))
       if (document.getElementsByClassName("VfPpkd-kBDsod NtU4hc").length > 0) {
         ui_buttons = document.getElementsByClassName("VfPpkd-kBDsod NtU4hc");
         document
@@ -171,11 +169,8 @@ window.addEventListener("load", () => {
   function insertButton() {
     try {
       ui_buttons = document.getElementsByClassName("VfPpkd-kBDsod NtU4hc");
-      // ui_buttons[1].click();
-      // document.getElementsByClassName("Tmb7Fd")[0].appendChild(meetTimeBtn);
       if (!isAttendanceWorking) {
         isAttendanceWorking = true;
-        // meetTimeBtn.style.backgroundColor = "#00796b";
         StartTime = new Date().toLocaleTimeString();
         studentDetails.clear();
         studentsNameSet.clear();
@@ -240,7 +235,6 @@ window.addEventListener("load", () => {
   };
 
   let stop = (STOP = () => {
-    // let newWindow1 = window.open(redirectUrl);
 
     clearInterval(startAttendanceTracker);
 
@@ -268,7 +262,6 @@ window.addEventListener("load", () => {
     };
 
     record.meet_duration = meetingDuration;
-    console.log(record, "Attendance Record");
 
     let updatedRecord = {
       attendies_data: JSON.stringify(record),
@@ -401,10 +394,8 @@ window.addEventListener("load", () => {
     if (recorder.state === "recording") {
       // pausing video recording timer:-
       clearInterval(intervalId);
-      // -----------
       pauseBtn.innerHTML = "&#9654;";
       recorder.pause();
-      console.log("recording is paused");
       // recording paused
     } else if (recorder.state === "paused") {
       // resume recording
@@ -422,7 +413,6 @@ window.addEventListener("load", () => {
         meetTimeBtn.innerText = `${hours}:${minutes}:${seconds}`;
         duration += 1000;
       }, 1000);
-      // --------------
     }
   }
 
@@ -431,15 +421,13 @@ window.addEventListener("load", () => {
     clearInterval(intervalId);
     duration = 0;
     meetTimeBtn.innerText = "00:00:00";
-    // ----------------
 
     isRecordingVideo = false;
     stop();
     recorder.stop();
     recorder.onstop = handleStop;
 
-    const previewUrl = chrome.runtime.getURL("preview.html");
-
+    
     chrome.runtime.sendMessage({ action: "createTab", url: previewUrl });
 
     chrome.runtime.sendMessage({ type: "attendance", meetRecord: record });
@@ -458,7 +446,6 @@ window.addEventListener("load", () => {
         meetTimeBtn.innerText = `${hours}:${minutes}:${seconds}`;
         duration += 1000;
       }, 1000);
-      console.log(stream, "This is stream");
     } else {
       console.log("No stream available");
     }
@@ -467,7 +454,9 @@ window.addEventListener("load", () => {
   async function startRecording() {
     isRecordingVideo = true;
     await setupStream();
-    console.log("Recorder function is running");
+
+    chrome.runtime.sendMessage({ message: "closePreview", closeURL: previewUrl  });
+
     if (stream && audio) {
       mixedStream = new MediaStream([
         ...stream.getTracks(),
@@ -479,14 +468,12 @@ window.addEventListener("load", () => {
       recorder.ondataavailable = handleDataAvailable;
       recorder.start(1000);
       recorder.onstop = stopRecording;
-      console.log("Recording started");
     } else {
       console.log("No stream available.");
     }
   }
 
   function handleDataAvailable(e) {
-    console.log(chunks, "this is chunks");
     if (e.data) {
       chunks.push(e.data);
       const blobToBase64 = (blob) => {
@@ -518,6 +505,5 @@ window.addEventListener("load", () => {
 
   function handleStop(e) {
     clearInterval(insertBtnInterval);
-    console.log("Recording stopped handleStop function");
   }
 });

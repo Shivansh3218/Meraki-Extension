@@ -17,8 +17,7 @@ function getChromeLocalStorage(key) {
   });
 }
 async function getData() {
-  console.log("functiopn is running");
-  console.log("for loop");
+
   let resultSize = 0;
 
   let resultVar = await getChromeLocalStorage([`data_chunk_0`]);
@@ -28,9 +27,9 @@ async function getData() {
   for (let i = 0; i < resultSize; i++) {
     let randomVar = await getChromeLocalStorage([`data_chunk_${i}`]);
     resultArr.push(randomVar[`data_chunk_${i}`].chunk);
-    console.log(randomVar, "Video Data");
+
   }
-  console.log({ resultArr });
+  // console.log({ resultArr });
 
   // Function to convert base64 to Blob
   function base64ToBlob(base64String, mimeType) {
@@ -87,7 +86,7 @@ async function getData() {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError);
     } else {
-      console.log("chrome.storage.local cleared successfully.");
+      // console.log("chrome.storage.local cleared successfully.");
     }
   });
 }
@@ -128,7 +127,7 @@ chrome.storage.local.get("attendanceRecord", (result) => {
     meetingDateSpan.innerText += `${dateString}`;
     meetingTimeSpan.innerText += `${startTimeString} to ${timeString}`;
 
-    console.log(attendance);
+    // console.log(attendance);
 
     let data = {
       attendedDurationInSec: JSON.parse(attendedDurationInSec),
@@ -137,7 +136,7 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       meeting_time: meetingTime,
       meeting_title: meetingID,
     };
-    console.log(data);
+    // console.log(data);
 
     function convertSecondsToTime(seconds) {
       // Calculate hours, minutes, and remaining seconds

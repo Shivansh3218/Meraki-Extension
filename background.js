@@ -48,12 +48,31 @@
 let myArray = [];
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+
+  if (request.message === "closePreview") {
+    myArray = [];
+    try {
+      chrome.tabs.query(
+        {
+          url: request.closeURL,
+        },
+        function (tabs) {
+          if (tabs.length > 0) {
+            chrome.tabs.remove(tabs[0].id, function () {
+            });
+          }
+        }
+      );
+    } catch (er) {
+      console.log(err);
+    }
+  }
   if (request.action === "createTab") {
     myArray.map((chunk, index) => {
       const key = `data_chunk_${index}`;
       const chunkData = { chunk, index, totalChunks: myArray.length };
       chrome.storage.local.set({ [key]: chunkData }, () => {
-        console.log(`Chunk ${index + 1} of ${myArray.length} stored`);
+        // console.log(`Chunk ${index + 1} of ${myArray.length} stored`);
       });
     });
     chrome.tabs.create({ url: request.url });
