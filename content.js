@@ -1,5 +1,4 @@
 window.addEventListener("load", () => {
-
   // setInterval(()=>{
 
   // var participantList = document.querySelector('.AE8xFb');
@@ -21,7 +20,6 @@ window.addEventListener("load", () => {
   let isRecordingVideo = false;
   let intervalId;
   const previewUrl = chrome.runtime.getURL("preview.html");
-
 
   //attendance tracker variables
 
@@ -235,7 +233,6 @@ window.addEventListener("load", () => {
   };
 
   let stop = (STOP = () => {
-
     clearInterval(startAttendanceTracker);
 
     //   let studentsJoiningTime = [];
@@ -287,25 +284,13 @@ window.addEventListener("load", () => {
     let currentlyPresentStudents = document.getElementsByClassName("zWGUib");
     if (currentlyPresentStudents.length > 0) {
       studentsNameSet.clear();
-      let numberOfjoinedStudents = -1;
-      try {
-        numberOfjoinedStudents = Number(
-          document.getElementsByClassName("uGOf1d")[1].innerHTML
-        );
-        numberOfjoinedStudents =
-          Number.isInteger(numberOfjoinedStudents) &&
-          numberOfjoinedStudents > 0 &&
-          numberOfjoinedStudents != -1
-            ? numberOfjoinedStudents
-            : currentlyPresentStudents.length;
-      } catch (e) {
-        numberOfjoinedStudents = currentlyPresentStudents.length;
-      }
+      let numberOfjoinedStudents = parseInt(
+        document.querySelector(".uGOf1d").innerText
+      );
+
       for (i = 0; i < numberOfjoinedStudents; i++) {
         try {
-          studentsNameSet.add(
-            currentlyPresentStudents[i].innerHTML.toUpperCase()
-          );
+          studentsNameSet.add(currentlyPresentStudents[i].innerHTML);
         } catch (exception) {}
       }
       for (studentName of studentsNameSet) {
@@ -427,7 +412,6 @@ window.addEventListener("load", () => {
     recorder.stop();
     recorder.onstop = handleStop;
 
-    
     chrome.runtime.sendMessage({ action: "createTab", url: previewUrl });
 
     chrome.runtime.sendMessage({ type: "attendance", meetRecord: record });
@@ -447,7 +431,7 @@ window.addEventListener("load", () => {
         duration += 1000;
       }, 1000);
     } else {
-      console.log("No stream available");
+      console.log("No asdasdasdasdasdasdasd available");
     }
   }
 
@@ -455,7 +439,10 @@ window.addEventListener("load", () => {
     isRecordingVideo = true;
     await setupStream();
 
-    chrome.runtime.sendMessage({ message: "closePreview", closeURL: previewUrl  });
+    chrome.runtime.sendMessage({
+      message: "closePreview",
+      closeURL: previewUrl,
+    });
 
     if (stream && audio) {
       mixedStream = new MediaStream([
