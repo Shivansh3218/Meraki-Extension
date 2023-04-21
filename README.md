@@ -42,4 +42,10 @@ Click on "Stop" to finish recording and obtain the recorded video and attendance
 <b>chrome.storage.local</b>: To store and retrieve data in the extension's local storage for persisting it on page refreshes.<br/>
 <br/>
 </br>
+Points To Remember:-
+1. This extension uses chrome.localStorage to store and transfer video and attendance data
+2. The extension might take 1 or 2 seconds load thus your attendance might start 1 secs late.
+3. Remember to download the video and attendance data before closing the preview page after stopping the meeting.
+4. The stop button also causes the Google Meet to end.
+
 That's it! The Meraki Extension is designed to help developers easily record meeting attendance and recordings during Google Meet sessions, and it includes various JavaScript concepts and functionalities for smooth operation. Feel free to customize and modify the extension to suit your specific requirements. Happy coding!
