@@ -141,7 +141,7 @@ window.addEventListener("load", () => {
   stopBtn.addEventListener("click", (event) => {
     let endButton = document.querySelector(".Gt6sbf");
     endButton.click();
-    location.replace("https://meet.google.com/?authuser=0");
+    location.reload();
     event.stopPropagation();
     if (isRecordingVideo == true) {
       stopRecording();
