@@ -105,14 +105,14 @@ chrome.storage.local.get("attendanceRecord", (result) => {
     let date = new Date();
     let extractedDate = new Date(date);
     let startTimeString =
-      attendance.startMeetTime.substring(0, 4) +
+      attendance.startMeetTime.substring(0, 5) +
       " " +
       attendance.startMeetTime.substring(8);
     let dateString = date.toString().slice(4, 15);
     let timeString =
-      extractedDate.toLocaleTimeString().substring(0, 4) +
+      extractedDate.toLocaleTimeString().substring(0, 5) +
       " " +
-      extractedDate.toLocaleTimeString().substring(8);
+      extractedDate.toLocaleTimeString().substring(9);
     let meetingIDSpan = document.querySelector("#meetingID");
     let meetingDateSpan = document.querySelector("#meetingDate");
     let meetingTimeSpan = document.querySelector("#meetingTime");
