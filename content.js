@@ -141,7 +141,9 @@ window.addEventListener("load", () => {
   stopBtn.addEventListener("click", (event) => {
     let endButton = document.querySelector(".Gt6sbf");
     endButton.click();
-    location.reload();
+    setTimeout(() => {
+      location.reload();
+    }, 2000);
     event.stopPropagation();
     if (isRecordingVideo == true) {
       stopRecording();
@@ -264,24 +266,38 @@ window.addEventListener("load", () => {
 
     record.meet_duration = meetingDuration;
 
-    let updatedRecord = {
+    let data = {
       attendies_data: JSON.stringify(record),
     };
-
-    setTimeout(() => {
-      const api = redirectUrl; // endpoint where this data will go
-      fetch(api, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedRecord),
+    fetch("https://merd-api.merakilearn.org/attendance", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
       })
-        .then((response) => response.json())
-        .catch((error) => {
-          console.log(error);
-        });
-    }, 2000);
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+    // const api = redirectUrl; // endpoint where this data will go
+    // fetch(api, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(updatedRecord),
+    // })
+    //   .then((response) => {
+    //     response.json()
+    //   console.log(response)
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
   });
 
   function attendanceTracker() {
