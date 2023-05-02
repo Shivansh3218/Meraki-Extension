@@ -280,8 +280,9 @@ window.addEventListener("load", () => {
     const elm = document.querySelector("[data-meeting-title]");
     if (elm && elm.dataset.meetingTitle) {
       return elm.dataset.meetingTitle;
+    }else {
+      return document.title;
     }
-    return document.title;
   };
 
   let stop = (STOP = () => {
@@ -386,7 +387,7 @@ window.addEventListener("load", () => {
         // meetTimeBtn.innerHTML = "Track Attendance";
         // meetTimeBtn.style.border = "2px solid #C5221F";
         goingToStop = 0;
-        // stop();
+        stop();
       }
     } else {
       try {
@@ -401,11 +402,15 @@ window.addEventListener("load", () => {
           // meetTimeBtn.innerHTML = "Track Attendance";
           // meetTimeBtn.style.border = "2px solid #C5221F";
           goingToStop = 0;
-          // stop();
+          stop();
         }
       }
     }
   }
+
+
+
+
   function toTimeFormat(time) {
     const SECONDS_IN_HOUR = 3600;
     const SECONDS_IN_MINUTE = 60;
@@ -649,7 +654,7 @@ window.addEventListener("load", () => {
       // recorder.onstop = stopRecording;
       recorder.ondataavailable = handleDataAvailable;
 
-      recorder.start(1500);
+      recorder.start(1000);
       console.log(recorder.state);
     } else {
       console.log("localStream is missing");

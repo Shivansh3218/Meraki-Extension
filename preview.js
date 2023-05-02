@@ -17,7 +17,6 @@ function getChromeLocalStorage(key) {
   });
 }
 async function getData() {
-
   let resultSize = 0;
 
   let resultVar = await getChromeLocalStorage([`data_chunk_0`]);
@@ -27,7 +26,6 @@ async function getData() {
   for (let i = 0; i < resultSize; i++) {
     let randomVar = await getChromeLocalStorage([`data_chunk_${i}`]);
     resultArr.push(randomVar[`data_chunk_${i}`].chunk);
-
   }
   // console.log({ resultArr });
 
@@ -96,6 +94,7 @@ chrome.storage.local.get("attendanceRecord", (result) => {
     console.error(chrome.runtime.lastError);
   } else {
     const attendance = result.attendanceRecord;
+    console.log(result.attendanceRecord);
 
     let attendeesNames = attendance.attendee_names;
     let meetingID = attendance.meet_code;
@@ -104,16 +103,11 @@ chrome.storage.local.get("attendanceRecord", (result) => {
     let meet_duration = attendance.meet_duration;
     let date = new Date();
     let extractedDate = new Date(date);
-    let startTimeString =
-      attendance.startMeetTime.substring(0, 5) +
-      " " +
-      attendance.startMeetTime.substring(8);
+    let startTimeString = timeConverter(attendance.startMeetTime)
     let dateString = date.toString().slice(4, 15);
-    let timeString =
-      extractedDate.toLocaleTimeString().substring(0, 5) +
-      " " +
-      extractedDate.toLocaleTimeString().substring(8);
+    let timeString = timeConverter(extractedDate.toLocaleTimeString())
     let meetingIDSpan = document.querySelector("#meetingID");
+    let meetingTitleSpan = document.querySelector("#meetingTitle");
     let meetingDateSpan = document.querySelector("#meetingDate");
     let meetingTimeSpan = document.querySelector("#meetingTime");
     let totalStudentsSpan = document.querySelector("#totalStudents");
@@ -123,8 +117,9 @@ chrome.storage.local.get("attendanceRecord", (result) => {
 
     totalMeetingDurationSpan.innerText += `: ${meet_duration}`;
     totalStudentsSpan.innerText += `: ${JSON.parse(attendeesNames).length}`;
+    meetingTitleSpan.innerText += `: ${result.attendanceRecord.meeting_title}`;
     meetingIDSpan.innerText += `: ${meetingID}`;
-    meetingDateSpan.innerText += `${dateString}`;
+    meetingDateSpan.innerText += `: ${dateString}`;
     meetingTimeSpan.innerText += `${startTimeString} to ${timeString}`;
 
     // console.log(attendance);
@@ -136,7 +131,20 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       meeting_time: meetingTime,
       meeting_title: meetingID,
     };
+    console.log(data);
     // console.log(data);
+
+
+    function timeConverter(time) {
+      let str = time.split("");
+      for (let i = 0; i < str.length; i++) {
+        if (isNaN(str[0]) === false && isNaN(str[1]) === true) {
+          str.unshift("0");
+        }
+      }
+      str = str.join("");
+      return str.substring(0, 5)+str.substring(8)
+    }
 
     function convertSecondsToTime(seconds) {
       // Calculate hours, minutes, and remaining seconds
@@ -144,7 +152,7 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       seconds %= 3600;
       let minutes = Math.floor(seconds / 60);
       seconds %= 60;
-      seconds = seconds - 1;
+      seconds > 1 ? (seconds = seconds - 1) : seconds;
       // Construct the time string
       if (minutes <= 9) {
         minutes = "0" + minutes;
