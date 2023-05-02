@@ -120,6 +120,8 @@ window.addEventListener("load", () => {
   meetTimeBtn.style.backgroundColor = "#6d6d6d";
   meetTimeBtn.style.fontSize = "16px";
 
+  // let muteBtn = null;
+
   // "duration" variable - to calculate duration of video recording:-
   let duration = 0;
 
@@ -128,7 +130,7 @@ window.addEventListener("load", () => {
       clearInterval(intervalId);
       duration = 0;
       meetTimeBtn.innerText = "00:00:00";
-      startRecording();
+      shareScreen();
       recButtonsContainer.innerHTML = "";
       recButtonsContainer.appendChild(redDot);
       recButtonsContainer.appendChild(meetTimeBtn);
@@ -140,7 +142,7 @@ window.addEventListener("load", () => {
 
   stopBtn.addEventListener("click", (event) => {
     let endButton = document.querySelector(".Gt6sbf");
-    endButton.click();
+    // endButton.click();
     setTimeout(() => {
       location.reload();
     }, 2000);
@@ -156,6 +158,9 @@ window.addEventListener("load", () => {
   function insertRecButton() {
     try {
       if (document.getElementsByClassName("VfPpkd-kBDsod NtU4hc").length > 0) {
+        // muteBtn = document.getElementsByClassName(
+        //   "VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c uaILN JxICCe HNeRed Uulb3c"
+        // )[0];
         ui_buttons = document.getElementsByClassName("VfPpkd-kBDsod NtU4hc");
         document
           .getElementsByClassName("jsNRx")[0]
@@ -164,6 +169,47 @@ window.addEventListener("load", () => {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  // if(muteBtn!==null){
+  //   console.log(muteBtn)
+  //   muteBtn.addEventListener("click", () => {
+  //     console.log("Hello mute is clicked");
+  //   });
+  // }
+
+  // Listen for changes to the mute button
+  let listen = false;
+  let isMuted = false;
+  let muteInterval;
+
+  if (listen === false) {
+    muteInterval = setInterval(() => {
+      if (document.querySelector(".Tmb7Fd") != null) {
+        console.log("listen");
+        listen = true;
+        addMute();
+      }
+    }, 1000);
+  }
+  function addMute() {
+    console.log(muteInterval, "mute interval");
+    clearInterval(muteInterval);
+
+    console.log(muteInterval, "mute interval after");
+    setTimeout(() => {
+      let muteButton = document.querySelector("[jsname='BOHaEe']");
+      muteButton.addEventListener("click", () => {
+        console.log("mute is clickwed", isMuted);
+        if (isMuted === false) {
+          isMuted = true;
+          muteAudio();
+        } else {
+          unmuteAudio();
+          isMuted = false;
+        }
+      });
+    }, 3000);
   }
 
   let insertBtnInterval = setInterval(() => {
@@ -269,20 +315,20 @@ window.addEventListener("load", () => {
     let data = {
       attendies_data: JSON.stringify(record),
     };
-    fetch("https://merd-api.merakilearn.org/attendance", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+    // fetch("https://merd-api.merakilearn.org/attendance", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(data),
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     console.log("Success:", data);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error:", error);
+    //   });
     // const api = redirectUrl; // endpoint where this data will go
     // fetch(api, {
     //   method: "POST",
@@ -379,21 +425,22 @@ window.addEventListener("load", () => {
 
   //Recorder functions
 
-  async function setupStream() {
-    try {
-      stream = await navigator.mediaDevices.getDisplayMedia({
-        video: true,
-      });
+  //   async function setupStream() {
+  //     try {
+  //       stream = await navigator.mediaDevices.getDisplayMedia({
+  //         video: true,
+  //         audio: true,
+  //       });
 
-      audio = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-      });
+  //       audio = await navigator.mediaDevices.getUserMedia({
+  //         audio: true
+  //       })
 
-      setupVideoFeedback();
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  //       setupVideoFeedback();
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+  //   }
 
   function handlePause() {
     if (recorder.state === "recording") {
@@ -420,71 +467,70 @@ window.addEventListener("load", () => {
       }, 1000);
     }
   }
-
-  async function stopRecording() {
-    // stop timer for video duration calculation:-
-    clearInterval(intervalId);
-    duration = 0;
-    meetTimeBtn.innerText = "00:00:00";
-
-    isRecordingVideo = false;
-    stop();
-    recorder.stop();
-    recorder.onstop = handleStop;
-
-    chrome.runtime.sendMessage({ action: "createTab", url: previewUrl });
-
-    chrome.runtime.sendMessage({ type: "attendance", meetRecord: record });
-  }
-
-  function setupVideoFeedback() {
-    if (stream) {
-      intervalId = setInterval(() => {
-        const hours = Math.floor(duration / 3600000)
-          .toString()
-          .padStart(2, "0");
-        const minutes = Math.floor((duration % 3600000) / 60000)
-          .toString()
-          .padStart(2, "0");
-        const seconds = ((duration % 60000) / 1000).toFixed(0).padStart(2, "0");
-        meetTimeBtn.innerText = `${hours}:${minutes}:${seconds}`;
-        duration += 1000;
-      }, 1000);
-    } else {
-      console.log("No asdasdasdasdasdasdasd available");
-    }
-  }
-
-  async function startRecording() {
-    isRecordingVideo = true;
-    await setupStream();
-
-    chrome.runtime.sendMessage({
-      message: "closePreview",
-      closeURL: previewUrl,
+  function muteAudio() {
+    localStream.getAudioTracks().forEach(function (track) {
+      track.enabled = !track.enabled;
     });
-
-    if (stream && audio) {
-      mixedStream = new MediaStream([
-        ...stream.getTracks(),
-        ...audio.getTracks(),
-      ]);
-
-      recorder = new MediaRecorder(mixedStream);
-      recorder.ondataavailable = handleDataAvailable;
-      recorder.start(1000);
-      recorder.onstop = stopRecording;
-    } else {
-      recButtonsContainer.innerHTML = "";
-      recButtonsContainer.appendChild(redDot);
-      recButtonsContainer.appendChild(recSessionTxt);
-      isRecordingVideo = false;
-
-      console.log("No stream available.");
-    }
   }
+  function unmuteAudio() {
+    localStream.getAudioTracks().forEach(function (track) {
+      track.enabled = true;
+    });
+  }
+
+  //   function setupVideoFeedback() {
+  //     if (stream) {
+  //       intervalId = setInterval(() => {
+  //         const hours = Math.floor(duration / 3600000)
+  //           .toString()
+  //           .padStart(2, "0");
+  //         const minutes = Math.floor((duration % 3600000) / 60000)
+  //           .toString()
+  //           .padStart(2, "0");
+  //         const seconds = ((duration % 60000) / 1000).toFixed(0).padStart(2, "0");
+  //         meetTimeBtn.innerText = `${hours}:${minutes}:${seconds}`;
+  //         duration += 1000;
+  //       }, 1000);
+  //     } else {
+  //       console.log("No asdasdasdasdasdasdasd available");
+  //     }
+  //   }
+
+  //   async function startRecording() {
+  //     isRecordingVideo = true;
+  //     await setupStream();
+
+  //     chrome.runtime.sendMessage({
+  //       message: "closePreview",
+  //       closeURL: previewUrl,
+  //     });
+
+  //     if (stream && audio) {
+  //       mixedStream = new MediaStream([
+  //         ...stream.getTracks(),
+  //         ...audio.getTracks(),
+  //       ]);
+
+  //       recorder = new MediaRecorder(mixedStream);
+  //       recorder.ondataavailable = handleDataAvailable;
+  //       recorder.start(1000);
+  //       recorder.onstop = stopRecording;
+  //     } else {
+  //       recButtonsContainer.innerHTML = "";
+  //       recButtonsContainer.appendChild(redDot);
+  //       recButtonsContainer.appendChild(recSessionTxt);
+  //       isRecordingVideo = false;
+
+  //       console.log("No stream available.");
+  //     }
+  //   }
+
+  //   function handleStop(e) {
+  //     clearInterval(insertBtnInterval);
+  //   }
 
   function handleDataAvailable(e) {
+    console.log(chunks);
     if (e.data) {
       chunks.push(e.data);
       const blobToBase64 = (blob) => {
@@ -514,7 +560,115 @@ window.addEventListener("load", () => {
     }
   }
 
-  function handleStop(e) {
-    clearInterval(insertBtnInterval);
+  function shareScreen() {
+    chrome.runtime.sendMessage({
+      message: "closePreview",
+      closeURL: previewUrl,
+    });
+    isRecordingVideo = true;
+    console.log("shareScreen");
+    var screenConstraints = { video: true, audio: true };
+    navigator.mediaDevices
+      .getDisplayMedia(screenConstraints)
+      .then(function (screenStream) {
+        /* use the screen & audio stream */
+
+        var micConstraints = { audio: true };
+        navigator.mediaDevices
+          .getUserMedia(micConstraints)
+          .then(function (micStream) {
+            var composedStream = new MediaStream();
+
+            screenStream.getVideoTracks().forEach(function (videoTrack) {
+              composedStream.addTrack(videoTrack);
+            });
+
+            var context = new AudioContext();
+
+            var audioDestinationNode = context.createMediaStreamDestination();
+
+            //check to see if we have a screen stream and only then add it
+            if (screenStream && screenStream.getAudioTracks().length > 0) {
+              const systemSource =
+                context.createMediaStreamSource(screenStream);
+
+              const systemGain = context.createGain();
+              systemGain.gain.value = 1.0;
+
+              systemSource.connect(systemGain).connect(audioDestinationNode);
+            }
+
+            if (micStream && micStream.getAudioTracks().length > 0) {
+              const micSource = context.createMediaStreamSource(micStream);
+
+              //set it's volume
+              const micGain = context.createGain();
+              micGain.gain.value = 1.0;
+
+              //add it to the destination
+              micSource.connect(micGain).connect(audioDestinationNode);
+            }
+
+            audioDestinationNode.stream
+              .getAudioTracks()
+              .forEach(function (audioTrack) {
+                composedStream.addTrack(audioTrack);
+              });
+            onCombinedStreamAvailable(composedStream);
+          })
+          .catch(function (err) {
+            console.log(err);
+          });
+      })
+      .catch(function (err) {
+        console.log(err);
+        recButtonsContainer.innerHTML = "";
+        recButtonsContainer.appendChild(redDot);
+        recButtonsContainer.appendChild(recSessionTxt);
+        isRecordingVideo = false;
+      });
+  
+  }
+
+  function onCombinedStreamAvailable(stream) {
+    console.log("onCombinedStreamAvailable");
+    localStream = stream;
+    if (localStream != null) {
+      intervalId = setInterval(() => {
+        const hours = Math.floor(duration / 3600000)
+          .toString()
+          .padStart(2, "0");
+        const minutes = Math.floor((duration % 3600000) / 60000)
+          .toString()
+          .padStart(2, "0");
+        const seconds = ((duration % 60000) / 1000).toFixed(0).padStart(2, "0");
+        meetTimeBtn.innerText = `${hours}:${minutes}:${seconds}`;
+        duration += 1000;
+      }, 970);
+      recorder = new MediaRecorder(localStream);
+      // recorder.onstop = stopRecording;
+      recorder.ondataavailable = handleDataAvailable;
+
+      recorder.start(1500);
+      console.log(recorder.state);
+    } else {
+      console.log("localStream is missing");
+    }
+  }
+
+  async function stopRecording() {
+    // stop timer for video duration calculation:-
+    clearInterval(intervalId);
+    duration = 0;
+    meetTimeBtn.innerText = "00:00:00";
+    if (recorder.state !== "inactive") {
+      recorder.stop();
+    }
+    isRecordingVideo = false;
+    stop();
+
+    chrome.runtime.sendMessage({ action: "createTab", url: previewUrl });
+
+    chrome.runtime.sendMessage({ type: "attendance", meetRecord: record });
   }
 });
