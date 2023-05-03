@@ -144,7 +144,7 @@ window.addEventListener("load", () => {
     let endButton = document.querySelector(".Gt6sbf");
     // endButton.click();
     setTimeout(() => {
-      location.reload();
+      // location.reload();
     }, 2000);
     event.stopPropagation();
     if (isRecordingVideo == true) {
@@ -201,15 +201,16 @@ window.addEventListener("load", () => {
       let muteButton = document.querySelector("[jsname='BOHaEe']");
       muteButton.addEventListener("click", () => {
         console.log("mute is clickwed", isMuted);
-        if (isMuted === false) {
-          isMuted = true;
+       isMuted = !isMuted
+       console.log("mute after clicked", isMuted);
+        if (isMuted === true ) {
           muteAudio();
         } else {
           unmuteAudio();
-          isMuted = false;
+          // isMuted = false;
         }
       });
-    }, 3000);
+    }, 2000);
   }
 
   let insertBtnInterval = setInterval(() => {
@@ -280,7 +281,7 @@ window.addEventListener("load", () => {
     const elm = document.querySelector("[data-meeting-title]");
     if (elm && elm.dataset.meetingTitle) {
       return elm.dataset.meetingTitle;
-    }else {
+    } else {
       return document.title;
     }
   };
@@ -408,9 +409,6 @@ window.addEventListener("load", () => {
     }
   }
 
-
-
-
   function toTimeFormat(time) {
     const SECONDS_IN_HOUR = 3600;
     const SECONDS_IN_MINUTE = 60;
@@ -473,14 +471,21 @@ window.addEventListener("load", () => {
     }
   }
   function muteAudio() {
-    localStream.getAudioTracks().forEach(function (track) {
-      track.enabled = !track.enabled;
-    });
+    if (isRecordingVideo === true) {
+      localStream.getAudioTracks().forEach(function (track) {
+        track.enabled = !track.enabled;
+      });
+    }
+    else{
+      console.log("recording not enabled")
+    }
   }
   function unmuteAudio() {
-    localStream.getAudioTracks().forEach(function (track) {
-      track.enabled = true;
-    });
+    if (isRecordingVideo === true) {
+      localStream.getAudioTracks().forEach(function (track) {
+        track.enabled = true;
+      });
+    }
   }
 
   //   function setupVideoFeedback() {
@@ -632,7 +637,6 @@ window.addEventListener("load", () => {
         recButtonsContainer.appendChild(recSessionTxt);
         isRecordingVideo = false;
       });
-  
   }
 
   function onCombinedStreamAvailable(stream) {
@@ -651,6 +655,16 @@ window.addEventListener("load", () => {
         duration += 1000;
       }, 970);
       recorder = new MediaRecorder(localStream);
+      if (isMuted === true) {
+        localStream.getAudioTracks().forEach(function (track) {
+          track.enabled = !track.enabled;
+        });
+      }
+        else{
+          localStream.getAudioTracks().forEach(function (track) {
+            track.enabled = true;
+        })
+      }
       // recorder.onstop = stopRecording;
       recorder.ondataavailable = handleDataAvailable;
 
