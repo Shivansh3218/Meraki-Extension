@@ -94,7 +94,6 @@ chrome.storage.local.get("attendanceRecord", (result) => {
     console.error(chrome.runtime.lastError);
   } else {
     const attendance = result.attendanceRecord;
-    console.log(result.attendanceRecord);
 
     let attendeesNames = attendance.attendee_names;
     let meetingID = attendance.meet_code;
@@ -131,7 +130,6 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       meeting_time: meetingTime,
       meeting_title: meetingID,
     };
-    console.log(data);
     // console.log(data);
 
 

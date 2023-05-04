@@ -193,16 +193,12 @@ window.addEventListener("load", () => {
     }, 1000);
   }
   function addMute() {
-    console.log(muteInterval, "mute interval");
     clearInterval(muteInterval);
 
-    console.log(muteInterval, "mute interval after");
     setTimeout(() => {
       let muteButton = document.querySelector("[jsname='BOHaEe']");
       muteButton.addEventListener("click", () => {
-        console.log("mute is clickwed", isMuted);
        isMuted = !isMuted
-       console.log("mute after clicked", isMuted);
         if (isMuted === true ) {
           muteAudio();
         } else {
@@ -317,20 +313,20 @@ window.addEventListener("load", () => {
     let data = {
       attendies_data: JSON.stringify(record),
     };
-    // fetch("https://merd-api.merakilearn.org/attendance", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(data),
-    // })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     console.log("Success:", data);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error:", error);
-    //   });
+    fetch("https://merd-api.merakilearn.org/attendance", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
     // const api = redirectUrl; // endpoint where this data will go
     // fetch(api, {
     //   method: "POST",
@@ -540,7 +536,6 @@ window.addEventListener("load", () => {
   //   }
 
   function handleDataAvailable(e) {
-    console.log(chunks);
     if (e.data) {
       chunks.push(e.data);
       const blobToBase64 = (blob) => {
@@ -576,7 +571,6 @@ window.addEventListener("load", () => {
       closeURL: previewUrl,
     });
     isRecordingVideo = true;
-    console.log("shareScreen");
     var screenConstraints = { video: true, audio: true };
     navigator.mediaDevices
       .getDisplayMedia(screenConstraints)
@@ -640,7 +634,6 @@ window.addEventListener("load", () => {
   }
 
   function onCombinedStreamAvailable(stream) {
-    console.log("onCombinedStreamAvailable");
     localStream = stream;
     if (localStream != null) {
       intervalId = setInterval(() => {
