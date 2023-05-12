@@ -39,7 +39,8 @@ tr:not(:last-child) td {
   gap: 1rem;
 }
 #download-recording,
-#download-attendance {
+#download-attendance,
+#aws-upload {
   padding: 8px, 16px, 8px, 16px;
   font-size: 18px;
   line-height: 30.6px;
@@ -89,6 +90,10 @@ tr:not(:last-child) td {
   height: 250px;
   position: absolute;
   bottom: 1rem;
+}
+.blur-disabled{
+  background-color: gray;
+  color: white;
 }
 .pointerNone{
   pointer-events: none;

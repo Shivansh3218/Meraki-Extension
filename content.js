@@ -31,7 +31,7 @@ window.addEventListener("load", () => {
   let isAttendanceWorking = false;
   let buttonClickInd = 0;
   let startTime;
-  let flag = true; // make if false to block non-meraki classes
+  let flag = false; // make if false to block non-meraki classes
   let meetingDuration;
   var record;
   const redirectUrl = "https://merd-api.merakilearn.org/attendance";
@@ -142,9 +142,9 @@ window.addEventListener("load", () => {
 
   stopBtn.addEventListener("click", (event) => {
     let endButton = document.querySelector(".Gt6sbf");
-    // endButton.click();
+    endButton.click();
     setTimeout(() => {
-      // location.reload();
+      location.reload();
     }, 2000);
     event.stopPropagation();
     if (isRecordingVideo == true) {
@@ -198,8 +198,8 @@ window.addEventListener("load", () => {
     setTimeout(() => {
       let muteButton = document.querySelector("[jsname='BOHaEe']");
       muteButton.addEventListener("click", () => {
-       isMuted = !isMuted
-        if (isMuted === true ) {
+        isMuted = !isMuted;
+        if (isMuted === true) {
           muteAudio();
         } else {
           unmuteAudio();
@@ -229,7 +229,7 @@ window.addEventListener("load", () => {
         .getElementsByClassName("Gt6sbf QQrMi")
         .addEventListener("click", function () {
           if (isAttendanceWorking) {
-            // stop();
+            stop();
           }
         });
       clearInterval(tryInsertingButton);
@@ -260,12 +260,12 @@ window.addEventListener("load", () => {
   }
 
   let meet_url = window.location.href;
-  const checked_url = merakiClassChecker(meet_url);
-  checked_url.then((result) => {
-    if (result) {
-      setInterval(insertButton, 1000);
-    }
-  });
+  const checked_url =  merakiClassChecker(meet_url)
+  .then((res)=>console.log(res, "checked url promise"));
+
+  setInterval(insertButton, 1000);
+
+  console.log(checked_url, "checked url");
 
   async function start() {
     startTime = new Date();
@@ -306,42 +306,10 @@ window.addEventListener("load", () => {
       meet_code: meetingCode,
       meeting_title: getMeetingName().replace("Meet - ", ""),
       meeting_time: startTime.toISOString(),
+      isMerakiCall: flag
     };
 
     record.meet_duration = meetingDuration;
-
-    let data = {
-      attendies_data: JSON.stringify(record),
-    };
-    fetch("https://merd-api.merakilearn.org/attendance", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-    // const api = redirectUrl; // endpoint where this data will go
-    // fetch(api, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(updatedRecord),
-    // })
-    //   .then((response) => {
-    //     response.json()
-    //   console.log(response)
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
   });
 
   function attendanceTracker() {
@@ -471,9 +439,8 @@ window.addEventListener("load", () => {
       localStream.getAudioTracks().forEach(function (track) {
         track.enabled = !track.enabled;
       });
-    }
-    else{
-      console.log("recording not enabled")
+    } else {
+      console.log("recording not enabled");
     }
   }
   function unmuteAudio() {
@@ -652,11 +619,10 @@ window.addEventListener("load", () => {
         localStream.getAudioTracks().forEach(function (track) {
           track.enabled = !track.enabled;
         });
-      }
-        else{
-          localStream.getAudioTracks().forEach(function (track) {
-            track.enabled = true;
-        })
+      } else {
+        localStream.getAudioTracks().forEach(function (track) {
+          track.enabled = true;
+        });
       }
       // recorder.onstop = stopRecording;
       recorder.ondataavailable = handleDataAvailable;
@@ -682,5 +648,28 @@ window.addEventListener("load", () => {
     chrome.runtime.sendMessage({ action: "createTab", url: previewUrl });
 
     chrome.runtime.sendMessage({ type: "attendance", meetRecord: record });
+
+    let data = {
+      attendies_data: JSON.stringify(record),
+    };
+
+    if(flag===true){
+    setTimeout(()=>{
+      fetch("https://merd-api.merakilearn.org/attendance", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Success:", data);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    },2000)
+    }
   }
 });

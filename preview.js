@@ -4,6 +4,18 @@ let buttonsContainer = document.querySelector(".buttons");
 // getData()
 let resultArr = [];
 let totalSize = 1000;
+let arrayBufferVideo = null;
+
+let accessKeyId = "";
+let secretAccessKey = "";
+let sessionToken = "";
+let bucketName = "";
+let videoObj = null;
+let videoName = "";
+let videoBlob = null;
+let isMerakiCall;
+
+let submitBtn = document.querySelector("#aws-upload");
 
 function getChromeLocalStorage(key) {
   return new Promise((resolve, reject) => {
@@ -21,13 +33,13 @@ async function getData() {
 
   let resultVar = await getChromeLocalStorage([`data_chunk_0`]);
   resultSize = resultVar.data_chunk_0.totalChunks;
-  // console.log(resultVar, resultSize);
+  console.log(resultVar, resultSize);
 
   for (let i = 0; i < resultSize; i++) {
     let randomVar = await getChromeLocalStorage([`data_chunk_${i}`]);
     resultArr.push(randomVar[`data_chunk_${i}`].chunk);
   }
-  // console.log({ resultArr });
+  console.log({ resultArr });
 
   // Function to convert base64 to Blob
   function base64ToBlob(base64String, mimeType) {
@@ -49,8 +61,40 @@ async function getData() {
     base64ToBlob(base64String, "video/mp4")
   );
 
+  console.log(blobsArray);
   // Concatenate Blobs into a single video Blob
-  const videoBlob = concatenateBlobs(blobsArray);
+  videoBlob = concatenateBlobs(blobsArray);
+
+  console.log(videoBlob);
+
+  // Define a function that converts a Blob to an ArrayBuffer
+  function blobToArrayBuffer(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.addEventListener("loadend", () => {
+        resolve(reader.result);
+      });
+      reader.addEventListener("error", () => {
+        reject(reader.error);
+      });
+      reader.readAsArrayBuffer(videoBlob);
+    });
+  }
+
+  // Use the function to convert the Blob to an ArrayBuffer
+  blobToArrayBuffer(videoBlob)
+    .then((arrayBuffer) => {
+      // Do something with the ArrayBuffer
+      arrayBufferVideo = arrayBuffer;
+      console.log(
+        "Converted Blob to ArrayBuffer:",
+        arrayBuffer,
+        arrayBufferVideo
+      );
+    })
+    .catch((error) => {
+      console.error("Error converting Blob to ArrayBuffer:", error);
+    });
 
   // Create a video element
   const videoElement = document.querySelector("#recorded-video");
@@ -80,6 +124,17 @@ async function getData() {
     resultArr = [];
     downloadLink.remove();
   });
+  if (isMerakiCall === true) {
+    submitBtn.addEventListener("click", uploadVideo);
+  } else if (isMerakiCall === false) {
+    submitBtn.style.backgroundColor = "gray";
+    submitBtn.addEventListener("click", () => {
+      alert("This feature is for meraki users only");
+    });
+  } else if (isMerakiCall === null) {
+    submitBtn.style.display = "none";
+  }
+
   chrome.storage.local.clear(function () {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError);
@@ -95,6 +150,8 @@ chrome.storage.local.get("attendanceRecord", (result) => {
   } else {
     const attendance = result.attendanceRecord;
 
+    isMerakiCall = attendance.isMerakiCall;
+    console.log(isMerakiCall, "is a meraki call");
     let attendeesNames = attendance.attendee_names;
     let meetingID = attendance.meet_code;
     let attendedDurationInSec = attendance.attendedDurationInSec;
@@ -102,9 +159,9 @@ chrome.storage.local.get("attendanceRecord", (result) => {
     let meet_duration = attendance.meet_duration;
     let date = new Date();
     let extractedDate = new Date(date);
-    let startTimeString = timeConverter(attendance.startMeetTime)
+    let startTimeString = timeConverter(attendance.startMeetTime);
     let dateString = date.toString().slice(4, 15);
-    let timeString = timeConverter(extractedDate.toLocaleTimeString())
+    let timeString = timeConverter(extractedDate.toLocaleTimeString());
     let meetingIDSpan = document.querySelector("#meetingID");
     let meetingTitleSpan = document.querySelector("#meetingTitle");
     let meetingDateSpan = document.querySelector("#meetingDate");
@@ -114,6 +171,7 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       "#totalMeetingDurationSpan"
     );
 
+    videoName = result.attendanceRecord.meeting_title;
     totalMeetingDurationSpan.innerText += `: ${meet_duration}`;
     totalStudentsSpan.innerText += `: ${JSON.parse(attendeesNames).length}`;
     meetingTitleSpan.innerText += `: ${result.attendanceRecord.meeting_title}`;
@@ -132,7 +190,6 @@ chrome.storage.local.get("attendanceRecord", (result) => {
     };
     // console.log(data);
 
-
     function timeConverter(time) {
       let str = time.split("");
       for (let i = 0; i < str.length; i++) {
@@ -141,7 +198,7 @@ chrome.storage.local.get("attendanceRecord", (result) => {
         }
       }
       str = str.join("");
-      return str.substring(0, 5)+str.substring(8)
+      return str.substring(0, 5) + str.substring(8);
     }
 
     function convertSecondsToTime(seconds) {
@@ -184,9 +241,6 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       array2Cell.textContent =
         convertSecondsToTime(data.attendedDurationInSec[i]) || "";
       row.appendChild(array2Cell);
-
-      // Create a cell for myString data
-
       // Append the row to the table body
       tableBody.appendChild(row);
       document.querySelector("#tableLoader").classList.add("none");
@@ -196,54 +250,6 @@ chrome.storage.local.get("attendanceRecord", (result) => {
         .querySelector("#download-attendance")
         .classList.remove("pointerNone");
     }
-
-    // const headerRow = document.createElement("tr");
-
-    // const attendeeHeader = document.createElement("th");
-    // attendeeHeader.textContent = "Attendee Names";
-    // headerRow.appendChild(attendeeHeader);
-
-    // const nameHeader = document.createElement("th");
-    // nameHeader.textContent = "Total Meeting duration";
-    // headerRow.appendChild(nameHeader);
-
-    // const meetDurationHeader = document.createElement("th");
-    // meetDurationHeader.textContent = "Attended Meeting duration";
-    // headerRow.appendChild(meetDurationHeader);
-
-    // const idHeader = document.createElement("th");
-    // idHeader.textContent = "Meeting id";
-    // headerRow.appendChild(idHeader);
-
-    // table.appendChild(headerRow);
-
-    // const dataRow = document.createElement("tr");
-    // table.appendChild(dataRow);
-
-    // const nameCell = document.createElement("td");
-    // nameCell.innerHTML = data[0].attendee_names
-    //   .map((name) => `${name}`)
-    //   .join("");
-    // dataRow.appendChild(nameCell);
-
-    // const duration_cell = document.createElement("td");
-    // duration_cell.textContent = data[0].meet_duration;
-    // dataRow.appendChild(duration_cell);
-
-    // const attendanceDurationCell = document.createElement("td");
-    // attendanceDurationCell.innerHTML = data[0].attendedDurationInSec
-    //   .map((time) => `${convertSecondsToTime(time)}`)
-    //   .join("");
-    // dataRow.appendChild(attendanceDurationCell);
-
-    // const title_cell = document.createElement("td");
-    // title_cell.textContent = data[0].meeting_title;
-    // dataRow.appendChild(title_cell);
-
-    // Add the data row to the table
-
-    // loadingScreen.classList.add("none");
-    // document.body.appendChild(table);
 
     document
       .querySelector("#download-attendance")
@@ -275,3 +281,68 @@ chrome.storage.local.get("attendanceRecord", (result) => {
     getData();
   }
 });
+
+fetch(
+  "https://merd-api.merakilearn.org/attendance/createdTempCredentialsForUploadVideo",
+  {
+    method: "POST",
+  }
+)
+  .then((res) => res.json())
+  .then((data) => {
+    accessKeyId = data.Credentials.AccessKeyId;
+    secretAccessKey = data.Credentials.SecretAccessKey;
+    sessionToken = data.Credentials.SessionToken;
+    bucketName = data.Bucket;
+
+    console.log(
+      accessKeyId,
+      secretAccessKey,
+      bucketName,
+      sessionToken,
+      bucketName
+    );
+  });
+
+function uploadVideo(event) {
+  event.preventDefault(); // prevent form submission
+
+  let randomNum = Math.floor(Math.random() * 100000000000000);
+
+  // configure the AWS SDK with your credentials
+  AWS.config.update({
+    accessKeyId: accessKeyId,
+    secretAccessKey: secretAccessKey,
+    sessionToken: sessionToken,
+    region: "ap-south",
+  });
+  console.log(arrayBufferVideo, {
+    file: arrayBufferVideo,
+    bucketName: bucketName,
+    Key: accessKeyId,
+    secretAccessKey: secretAccessKey,
+    sessionToken: sessionToken,
+  });
+  // create a new S3 instance
+  const s3 = new AWS.S3();
+
+  // create the S3 upload parameters
+  const params = {
+    Bucket: bucketName,
+    Key: `videos/${videoName + randomNum}`, // set the key to the file name in a "videos" directory
+    Body: arrayBufferVideo,
+    ContentType: "video/mp4",
+    ACL: "public-read", // set the ACL to allow public read access
+  };
+
+  // upload the video to S3 bucket
+  s3.upload(params, function (err, data) {
+    if (err) {
+      console.error(err);
+      alert("Error uploading video to S3 bucket");
+    } else {
+      console.log("Video uploaded successfully:", data.Location);
+      alert("Video uploaded successfully");
+    }
+  });
+}
