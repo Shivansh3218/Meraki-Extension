@@ -15,6 +15,10 @@ let videoName = "";
 let videoBlob = null;
 let isMerakiCall;
 
+let isUploading = false;
+const modal = document.getElementById("myModal");
+
+let uploadPara = document.querySelector("#upload-para");
 let submitBtn = document.querySelector("#aws-upload");
 
 function getChromeLocalStorage(key) {
@@ -294,18 +298,16 @@ fetch(
     secretAccessKey = data.Credentials.SecretAccessKey;
     sessionToken = data.Credentials.SessionToken;
     bucketName = data.Bucket;
-
-    console.log(
-      accessKeyId,
-      secretAccessKey,
-      bucketName,
-      sessionToken,
-      bucketName
-    );
   });
 
 function uploadVideo(event) {
   event.preventDefault(); // prevent form submission
+  isUploading = true;
+  modal.style.display = "block";
+  window.onbeforeunload = (e) => {
+    e.preventDefault();
+    return "";
+  };
 
   let randomNum = Math.floor(Math.random() * 100000000000000);
 
@@ -340,9 +342,19 @@ function uploadVideo(event) {
     if (err) {
       console.error(err);
       alert("Error uploading video to S3 bucket");
+      isUploading = false;
+      modal.style.display = "none";
+      window.onbeforeunload = null;
     } else {
       console.log("Video uploaded successfully:", data.Location);
       alert("Video uploaded successfully");
+      isUploading = false;
+      modal.style.display = "none";
+      window.onbeforeunload = null;
     }
+  }).on("httpUploadProgress", function (progress) {
+    const percent = Math.round((progress.loaded / progress.total) * 100);
+    uploadPara.innerHTML = ` ${percent}%`;
+    console.log(`Uploading: ${percent}%`);
   });
 }

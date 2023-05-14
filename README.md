@@ -20,7 +20,7 @@ Click on "Stop" to finish recording and obtain the recorded video and attendance
 ## Functions in Content.js
 ### The Content.js file includes the following functions:
 
-<b>startRecording</b>: To start recording the video of the meeting.<br/>
+<b>shareScreen</b>: To start recording the video of the meeting.<br/>
 <b>merakiClassChecker</b>: To check if the class is coming from the Meraki platform or any external meeting by matching the URL with the Meraki class link.<br/>
 <b>start</b>: To start recording the attendance of members using the extension.<br/>
 <b>stop</b>: To stop recording the attendance.<br/>
@@ -39,6 +39,7 @@ Click on "Stop" to finish recording and obtain the recorded video and attendance
 <b>chrome.runtime.sendMessage</b>: To send the video and attendance data to the next page.<br/>
 <b>chrome.tabs.create</b>: To open and navigate to the preview page in a new tab.<br/>
 <b>FileReader</b>: To convert the base64 file to video on the preview page.<br/>
+<b>AWS S3</b>: To upload the video into s3 bucket.<br/>
 <b>chrome.storage.local</b>: To store and retrieve data in the extension's local storage for persisting it on page refreshes.<br/>
 <br/>
 </br>
