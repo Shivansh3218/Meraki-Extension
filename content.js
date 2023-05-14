@@ -31,7 +31,7 @@ window.addEventListener("load", () => {
   let isAttendanceWorking = false;
   let buttonClickInd = 0;
   let startTime;
-  let flag = true ; // make if false to block non-meraki classes
+  let flag = false ; // make if false to block non-meraki classes
   let meetingDuration;
   var record;
   const redirectUrl = "https://merd-api.merakilearn.org/attendance";
