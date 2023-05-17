@@ -133,7 +133,7 @@ async function getData() {
   } else if (isMerakiCall === false) {
     submitBtn.style.backgroundColor = "gray";
     submitBtn.addEventListener("click", () => {
-      alert("This feature is for meraki users only");
+      alert("This feature is accessible to the meraki server based classes only");
     });
   } else if (isMerakiCall === null) {
     submitBtn.style.display = "none";
