@@ -1,53 +1,42 @@
-// // Open IndexedDB database
-// const openDB = () => {
-//   return new Promise((resolve, reject) => {
-//     const request = indexedDB.open("MyDatabase", 1);
-
-//     request.onerror = (event) => {
-//       console.error("Error opening IndexedDB", event);
-//       reject(event);
-//     };
-
-//     request.onsuccess = (event) => {
-//       const db = event.target.result;
-//       resolve(db);
-//     };
-
-//     request.onupgradeneeded = (event) => {
-//       const db = event.target.result;
-//       db.createObjectStore("MyObjectStore", { keyPath: "id", autoIncrement: true });
-//     };
-//   });
-// };
-
-// // Add data to IndexedDB
-// const addToIndexedDB = (data) => {
-//   return new Promise(async (resolve, reject) => {
-//     try {
-//       const db = await openDB();
-//       const transaction = db.transaction(["MyObjectStore"], "readwrite");
-//       const objectStore = transaction.objectStore("MyObjectStore");
-//       const request = objectStore.add(data);
-
-//       request.onerror = (event) => {
-//         console.error("Error adding data to IndexedDB", event);
-//         reject(event);
-//       };
-
-//       request.onsuccess = (event) => {
-//         console.log("Data added to IndexedDB", event);
-//         resolve(event);
-//       };
-//     } catch (error) {
-//       console.error("Error adding data to IndexedDB", error);
-//       reject(error);
-//     }
-//   });
-// };
-
 let myArray = [];
+let popUpId;
+let meetWindowId;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "openPopUp") {
+    // Access the popup's window object
+    chrome.windows.create({
+      url: "popup.html",
+      type: "popup",
+      width: 700,
+      height: 600,
+    });
+  }
+  if (request.action === "popupId") {
+    // Access the popup's window object
+    popUpId = request.message;
+    console.log(popUpId, "popUpId");
+  }
+  if (request.action === "getContentTabId") {
+    meetWindowId = sender.tab.id;
+    console.log(meetWindowId, "meeeting window id");
+    // Send the tab ID back to the content script
+  }
+  if (request.action === "doSomething") {
+    // Access the popup's window object
+    console.log("Hello from popup.js");
+    function sendMessageToContentScript(message) {
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, message);
+      });
+    }
+
+    // Example usage: sending a message with data
+    sendMessageToContentScript({
+      action: "startRecordingTimer",
+      data: "recording-started",
+    });
+  }
   if (request.message === "closePreview") {
     myArray = [];
     try {
@@ -74,10 +63,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       });
     });
     chrome.tabs.create({ url: request.url });
+    chrome.windows.getAll({ populate: true }, function (windows) {
+      windows.forEach(function (window) {
+        if (window.tabs[0].url.endsWith("popup.html")) {
+          chrome.windows.remove(window.id);
+        }
+      });
+    });
   } else if (request.type == "base64Data") {
     myArray.push(request.data);
   } else if (request.type === "attendance") {
-    // console.log(request.meetRecord)
     let attendanceRecord = request.meetRecord;
     chrome.storage.local.set({ attendanceRecord }, () => {
       if (chrome.runtime.lastError) {
@@ -87,4 +82,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
     });
   }
+});
+
+chrome.runtime.onConnect.addListener(function (externalPort) {
+  externalPort.onDisconnect.addListener(function () {
+    console.log("onDisconnect");
+    chrome.tabs.sendMessage(meetWindowId, { message: "PopupClosed" });
+  });
+
+  console.log("onConnect");
 });

@@ -2,3 +2,15 @@ body{
     /* width: 50rem;
     height: 50rem; */
 }
+#start-recording{
+    padding: 8px, 16px, 8px, 16px;
+    font-size: 18px;
+    line-height: 30.6px;
+    align-items: center;
+    background-color: #48a145;
+    border-radius: 8px;
+    width: 15rem;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
