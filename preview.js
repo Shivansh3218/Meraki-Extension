@@ -331,7 +331,7 @@ function uploadVideo(event) {
   // create the S3 upload parameters
   const params = {
     Bucket: bucketName,
-    Key: `videos/${videoName + randomNum}`, // set the key to the file name in a "videos" directory
+    Key: `videos/${videoName + randomNum}`,
     Body: arrayBufferVideo,
     ContentType: "video/mp4",
     ACL: "public-read", // set the ACL to allow public read access

@@ -1,16 +1,21 @@
 let myArray = [];
 let popUpId;
 let meetWindowId;
+let isPopUpOpened = false;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "openPopUp") {
     // Access the popup's window object
-    chrome.windows.create({
-      url: "popup.html",
-      type: "popup",
-      width: 700,
-      height: 600,
-    });
+    if(isPopUpOpened===false){
+      chrome.windows.create({
+        url: "popup.html",
+        type: "popup",
+        width: 700,
+        height: 600,
+      });
+      isPopUpOpened = true
+    }else{console.log("popup already opened")}
+ 
   }
   if (request.action === "popupId") {
     // Access the popup's window object
@@ -22,6 +27,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log(meetWindowId, "meeeting window id");
     // Send the tab ID back to the content script
   }
+
   if (request.action === "doSomething") {
     // Access the popup's window object
     console.log("Hello from popup.js");
@@ -45,6 +51,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
   }
   if (request.action === "createTab") {
+    popUpId = null;
+    meetWindowId = null;
     myArray.map((chunk, index) => {
       const key = `data_chunk_${index}`;
       const chunkData = { chunk, index, totalChunks: myArray.length };

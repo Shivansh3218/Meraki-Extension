@@ -225,7 +225,7 @@ async function stopRecording() {
 
   chrome.runtime.sendMessage({ action: "createTab", url: previewUrl });
 
-  // chrome.runtime.sendMessage({ type: "attendance", meetRecord: "record" });
+  // chrome.runtime.sendMessage({ action: "emptyTabIDs" });
 }
 
 // Function to send a message to background.js
