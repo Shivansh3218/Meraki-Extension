@@ -14,6 +14,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         height: 600,
       });
       isPopUpOpened = true
+      // background.js
+      let mutedAudio = request.message
+chrome.runtime.sendMessage({ action: "Mute-audio",message:mutedAudio });
+
     }else{console.log("popup already opened")}
  
   }

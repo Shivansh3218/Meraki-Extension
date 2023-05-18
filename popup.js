@@ -15,7 +15,7 @@ window.onbeforeunload = (event) => {
 let startRec = document.querySelector("#start-recording");
 let stopRec = document.querySelector("#stop-recording");
 
-let isMuted = false;
+let isMuted ;
 let stream = null;
 let audio = null;
 let mixedStream = null;
@@ -39,6 +39,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "muteAudio") {
     muteAudio(); 
     isMuted = request.message
+  }
+  if (request.action === "Mute-audio") {
+    isMuted = request.message
+    console.log(isMuted,"muted from chrome.runtime.send")
   }
   if (request.action === "unmuteAudio") {
     unmuteAudio();
@@ -65,8 +69,7 @@ function unmuteAudio() {
       track.enabled = true;
     });
   }else{
-    
-    console.log(isMuted, "The call is muted")
+    console.log(isMuted, "The call is un muted")
   }
 }
 function handlePause() {
@@ -180,6 +183,7 @@ function onCombinedStreamAvailable(stream) {
   if (localStream != null) {
 
     recorder = new MediaRecorder(localStream);
+    console.log(isMuted , "Mute inside when the recording start")
       if (isMuted === true) {
         localStream.getAudioTracks().forEach(function (track) {
           track.enabled = !track.enabled;
