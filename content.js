@@ -1,6 +1,6 @@
-let isRecordingVideo = false;
+let videoRecordingEnabled = false;
 let intervalId;
-const previewUrl = chrome.runtime.getURL("preview.html");
+const previewPageUrl = chrome.runtime.getURL("preview.html");
 
 //attendance tracker variables
 
@@ -29,7 +29,6 @@ let sortedtstudentsNameSet = [];
 let studentsAttendedDuration = [];
 //   let studentsJoiningTime = [];
 let mapKeys = studentDetails.keys();
-
 
 const redDot = document.createElement("span");
 redDot.style.height = "15px";
@@ -105,7 +104,7 @@ meetTimeBtn.style.fontSize = "16px";
 let duration = 0;
 
 recButtonsContainer.addEventListener("click", () => {
-  if (isRecordingVideo == false) {
+  if (videoRecordingEnabled == false) {
     clearInterval(intervalId);
     duration = 0;
     meetTimeBtn.innerText = "00:00:00";
@@ -126,7 +125,7 @@ stopBtn.addEventListener("click", (event) => {
     location.reload();
   }, 2000);
   event.stopPropagation();
-  if (isRecordingVideo == true) {
+  if (videoRecordingEnabled == true) {
     stopRecording();
     recButtonsContainer.innerHTML = "";
     recButtonsContainer.appendChild(redDot);
@@ -159,7 +158,7 @@ function insertRecButton() {
 
 // Listen for changes to the mute button
 let listen = false;
-let isMuted = false;
+let userMuted = false;
 let muteInterval;
 
 if (listen === false) {
@@ -177,15 +176,15 @@ function addMute() {
   setTimeout(() => {
     let muteButton = document.querySelector("[jsname='BOHaEe']");
     muteButton.addEventListener("click", () => {
-      isMuted = !isMuted;
-      if (isMuted === true) {
+      userMuted = !userMuted;
+      if (userMuted === true) {
         muteAudio();
       } else {
         unmuteAudio();
-        isMuted = false;
+        userMuted = false;
       }
     });
-  }, 2000);
+  }, 1000);
 }
 
 let insertBtnInterval = setInterval(() => {
@@ -372,22 +371,6 @@ function toTimeFormat(time) {
 
 //Recorder functions
 
-//   async function setupStream() {
-//     try {
-//       stream = await navigator.mediaDevices.getDisplayMedia({
-//         video: true,
-//         audio: true,
-//       });
-
-//       audio = await navigator.mediaDevices.getUserMedia({
-//         audio: true
-//       })
-
-//       setupVideoFeedback();
-//     } catch (err) {
-//       console.log(err);
-//     }
-//   }
 let recorderWorking = true;
 
 function handlePause() {
@@ -420,207 +403,36 @@ function handlePause() {
 //mute and unmute functions
 
 function muteAudio() {
-  if (isRecordingVideo === true) {
-    chrome.runtime.sendMessage({ action: "muteAudio" });
+  if (videoRecordingEnabled === true) {
+    chrome.runtime.sendMessage({ action: "muteAudio", message: true });
   } else {
     console.log("recording not enabled");
   }
 }
 function unmuteAudio() {
-  if (isRecordingVideo === true) {
-    chrome.runtime.sendMessage({ action: "unmuteAudio" });
+  if (videoRecordingEnabled === true) {
+    chrome.runtime.sendMessage({ action: "unmuteAudio", message: false });
   }
 }
-
-//   function setupVideoFeedback() {
-//     if (stream) {
-//       intervalId = setInterval(() => {
-//         const hours = Math.floor(duration / 3600000)
-//           .toString()
-//           .padStart(2, "0");
-//         const minutes = Math.floor((duration % 3600000) / 60000)
-//           .toString()
-//           .padStart(2, "0");
-//         const seconds = ((duration % 60000) / 1000).toFixed(0).padStart(2, "0");
-//         meetTimeBtn.innerText = `${hours}:${minutes}:${seconds}`;
-//         duration += 1000;
-//       }, 1000);
-//     } else {
-//       console.log("No asdasdasdasdasdasdasd available");
-//     }
-//   }
-
-//   async function startRecording() {
-//     isRecordingVideo = true;
-//     await setupStream();
-
-//     chrome.runtime.sendMessage({
-//       message: "closePreview",
-//       closeURL: previewUrl,
-//     });
-
-//     if (stream && audio) {
-//       mixedStream = new MediaStream([
-//         ...stream.getTracks(),
-//         ...audio.getTracks(),
-//       ]);
-
-//       recorder = new MediaRecorder(mixedStream);
-//       recorder.ondataavailable = handleDataAvailable;
-//       recorder.start(1000);
-//       recorder.onstop = stopRecording;
-//     } else {
-//       recButtonsContainer.innerHTML = "";
-//       recButtonsContainer.appendChild(redDot);
-//       recButtonsContainer.appendChild(recSessionTxt);
-//       isRecordingVideo = false;
-
-//       console.log("No stream available.");
-//     }
-//   }
-
-//   function handleStop(e) {
-//     clearInterval(insertBtnInterval);
-//   }
-
-// function handleDataAvailable(e) {
-//   if (e.data) {
-//     chunks.push(e.data);
-//     const blobToBase64 = (blob) => {
-//       return new Promise((resolve, reject) => {
-//         const reader = new FileReader();
-//         reader.readAsDataURL(blob);
-//         reader.onloadend = () => {
-//           const base64Strings = reader.result
-//             .toString()
-//             .replace(/^data:(.*,)?/, "");
-//           resolve(base64Strings);
-//         };
-//         reader.onerror = (error) => reject(error);
-//       });
-//     };
-
-//     blobToBase64(e.data)
-//       .then((base64Strings) => {
-//         chrome.runtime.sendMessage({
-//           type: "base64Data",
-//           data: base64Strings,
-//         });
-//       })
-//       .catch((error) => {
-//         console.error(error);
-//       });
-//   }
-// }
 
 function shareScreen() {
   chrome.runtime.sendMessage({
     message: "closePreview",
-    closeURL: previewUrl,
+    closeURL: previewPageUrl,
   });
-  if (isRecordingVideo === false) {
+  if (videoRecordingEnabled === false) {
     chrome.runtime.sendMessage({ action: "openPopUp" });
   }
-  isRecordingVideo = true;
-
-  // var screenConstraints = { video: true, audio: true };
-  // navigator.mediaDevices
-  //   .getDisplayMedia(screenConstraints)
-  //   .then(function (screenStream) {
-  //     /* use the screen & audio stream */
-
-  //     var micConstraints = { audio: true };
-  //     navigator.mediaDevices
-  //       .getUserMedia(micConstraints)
-  //       .then(function (micStream) {
-  //         var composedStream = new MediaStream();
-
-  //         screenStream.getVideoTracks().forEach(function (videoTrack) {
-  //           composedStream.addTrack(videoTrack);
-  //         });
-
-  //         var context = new AudioContext();
-
-  //         var audioDestinationNode = context.createMediaStreamDestination();
-
-  //         //check to see if we have a screen stream and only then add it
-  //         if (screenStream && screenStream.getAudioTracks().length > 0) {
-  //           const systemSource =
-  //             context.createMediaStreamSource(screenStream);
-
-  //           const systemGain = context.createGain();
-  //           systemGain.gain.value = 1.0;
-
-  //           systemSource.connect(systemGain).connect(audioDestinationNode);
-  //         }
-
-  //         if (micStream && micStream.getAudioTracks().length > 0) {
-  //           const micSource = context.createMediaStreamSource(micStream);
-
-  //           //set it's volume
-  //           const micGain = context.createGain();
-  //           micGain.gain.value = 1.0;
-
-  //           //add it to the destination
-  //           micSource.connect(micGain).connect(audioDestinationNode);
-  //         }
-
-  //         audioDestinationNode.stream
-  //           .getAudioTracks()
-  //           .forEach(function (audioTrack) {
-  //             composedStream.addTrack(audioTrack);
-  //           });
-  //         onCombinedStreamAvailable(composedStream);
-  //       })
-  //       .catch(function (err) {
-  //         console.log(err);
-  //       });
-  //   })
-  //   .catch(function (err) {
-  //     console.log(err);
-  //     recButtonsContainer.innerHTML = "";
-  //     recButtonsContainer.appendChild(redDot);
-  //     recButtonsContainer.appendChild(recSessionTxt);
-  //     isRecordingVideo = false;
-  //   });
+  videoRecordingEnabled = true;
 }
-
-// function onCombinedStreamAvailable(stream) {
-//   localStream = stream;
-//   if (localStream != null) {
-
-//     recorder = new MediaRecorder(localStream);
-//     if (isMuted === true) {
-//       localStream.getAudioTracks().forEach(function (track) {
-//         track.enabled = !track.enabled;
-//       });
-//     } else {
-//       localStream.getAudioTracks().forEach(function (track) {
-//         track.enabled = true;
-//       });
-//     }
-//     // recorder.onstop = stopRecording;
-//     recorder.ondataavailable = handleDataAvailable;
-
-//     recorder.start(1000);
-//     console.log(recorder.state);
-//   } else {
-//     console.log("localStream is missing");
-//   }
-// }
 
 async function stopRecording() {
   // stop timer for video duration calculation:-
   clearInterval(intervalId);
   duration = 0;
   meetTimeBtn.innerText = "00:00:00";
-  // if (recorder.state !== "inactive") {
-  //   recorder.stop();
-  // }
-  isRecordingVideo = false;
+  videoRecordingEnabled = false;
   stop();
-
-  // chrome.runtime.sendMessage({ action: "createTab", url: previewUrl });
 
   chrome.runtime.sendMessage({ action: "stopRecording" });
   chrome.runtime.sendMessage({ type: "attendance", meetRecord: record });
@@ -648,11 +460,6 @@ async function stopRecording() {
     }, 2000);
   }
 }
-// });
-
-// content.js
-
-// content.js
 
 // Listen for messages from background.js
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
@@ -672,16 +479,14 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     // Handle the message and perform actions in the content script
   }
   if (message.message === "PopupClosed") {
-    console.log("Recording ended")
+    console.log("Recording ended");
     recButtonsContainer.innerHTML = "";
     recButtonsContainer.appendChild(redDot);
     recButtonsContainer.appendChild(recSessionTxt);
-    isRecordingVideo = false;
+    videoRecordingEnabled = false;
   }
 });
 
-window.onload = ()=>{
-
-  chrome.runtime.sendMessage({action:"getContentTabId"})
-  // Perform any actions with the popup ID
+window.onload = () => {
+  chrome.runtime.sendMessage({ action: "getContentTabId" });
 };

@@ -1,18 +1,13 @@
 window.onload = function () {
-  // let send = document.querySelector("#send");
-  // setTimeout(() => send.click(), 1);
-  // send.addEventListener("click", () => console.log("uiser clicked"));
   chrome.windows.getCurrent(function(popupWindow) {
     const popupId = popupWindow.id;
     console.log('Popup ID:', popupId);
-    chrome.runtime.sendMessage({action:"popupId", message:popupId})
-    // Perform any actions with the popup ID
+    chrome.runtime.sendMessage({action:"popupId", message:popupId});
   });
 };
 var port = chrome.runtime.connect()
 
 window.onbeforeunload = (event) => {
- 
   const confirmationMessage = 'Closing this tab will cause you to lose your meeting recording. Are you sure you want to leave?';
   event.preventDefault();
   event.returnValue = confirmationMessage;
@@ -20,6 +15,7 @@ window.onbeforeunload = (event) => {
 let startRec = document.querySelector("#start-recording");
 let stopRec = document.querySelector("#stop-recording");
 
+let isMuted = false;
 let stream = null;
 let audio = null;
 let mixedStream = null;
@@ -41,10 +37,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("Start recording");
   }
   if (request.action === "muteAudio") {
-    muteAudio();
+    muteAudio(); 
+    isMuted = request.message
   }
   if (request.action === "unmuteAudio") {
     unmuteAudio();
+    isMuted = request.message
   }
   if (request.action === "pauseVideo") {
     handlePause();
@@ -58,6 +56,7 @@ function muteAudio() {
     });
   } else {
     console.log("recording not enabled");
+    console.log(isMuted, "The call is muted")
   }
 }
 function unmuteAudio() {
@@ -65,6 +64,9 @@ function unmuteAudio() {
     localStream.getAudioTracks().forEach(function (track) {
       track.enabled = true;
     });
+  }else{
+    
+    console.log(isMuted, "The call is muted")
   }
 }
 function handlePause() {
@@ -169,41 +171,29 @@ function shareScreen() {
     })
     .catch(function (err) {
       console.log(err);
-      // recButtonsContainer.innerHTML = "";
-      // recButtonsContainer.appendChild(redDot);
-      // recButtonsContainer.appendChild(recSessionTxt);
-      // isRecordingVideo = false;
+
     });
 }
 
 function onCombinedStreamAvailable(stream) {
   localStream = stream;
   if (localStream != null) {
-    //   intervalId = setInterval(() => {
-    //     const hours = Math.floor(duration / 3600000)
-    //       .toString()
-    //       .padStart(2, "0");
-    //     const minutes = Math.floor((duration % 3600000) / 60000)
-    //       .toString()
-    //       .padStart(2, "0");
-    //     const seconds = ((duration % 60000) / 1000).toFixed(0).padStart(2, "0");
-    //     meetTimeBtn.innerText = `${hours}:${minutes}:${seconds}`;
-    //     duration += 1000;
-    //   }, 970);
+
     recorder = new MediaRecorder(localStream);
-    //   if (isMuted === true) {
-    //     localStream.getAudioTracks().forEach(function (track) {
-    //       track.enabled = !track.enabled;
-    //     });
-    //   } else {
-    //     localStream.getAudioTracks().forEach(function (track) {
-    //       track.enabled = true;
-    //     });
-    //   }
+      if (isMuted === true) {
+        localStream.getAudioTracks().forEach(function (track) {
+          track.enabled = !track.enabled;
+        });
+      } else {
+        localStream.getAudioTracks().forEach(function (track) {
+          track.enabled = true;
+        });
+      }
     // recorder.onstop = stopRecording;
     recorder.ondataavailable = handleDataAvailable;
 
     recorder.start(1000);
+    console.log(isRecordingVideo, "is video recording")
     chrome.runtime.sendMessage({
       action: "doSomething",
       message: "recording-started",
@@ -238,29 +228,8 @@ async function stopRecording() {
   // chrome.runtime.sendMessage({ type: "attendance", meetRecord: "record" });
 }
 
-// if (isRecordingVideo) {
-//   window.onbeforeunload = (e) => {
-//     e.preventDefault();
-//     return "";
-//   };
-// } else {
-//   window.onbeforeunload = null;
-// }
-
-// popup.js
-
-// popup.js
-
 // Function to send a message to background.js
 function sendMessageToBackgroundScript(message) {
   chrome.runtime.sendMessage(message);
   console.log("sending message");
 }
-
-// Example usage: sending a message with data
-
-// document
-//   .querySelector("#send")
-//   .addEventListener("click", () =>
-// chrome.runtime.sendMessage({action:"doSomething", message:"This is message from popup.js"})
-//   );

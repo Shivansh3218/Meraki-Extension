@@ -25,17 +25,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "doSomething") {
     // Access the popup's window object
     console.log("Hello from popup.js");
-    function sendMessageToContentScript(message) {
-      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, message);
-      });
-    }
-
-    // Example usage: sending a message with data
-    sendMessageToContentScript({
-      action: "startRecordingTimer",
-      data: "recording-started",
-    });
+    chrome.tabs.sendMessage(meetWindowId, { action: "startRecordingTimer" });
   }
   if (request.message === "closePreview") {
     myArray = [];
