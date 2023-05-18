@@ -24,17 +24,17 @@ chrome.runtime.sendMessage({ action: "Mute-audio",message:mutedAudio });
   if (request.action === "popupId") {
     // Access the popup's window object
     popUpId = request.message;
-    console.log(popUpId, "popUpId");
+    // console.log(popUpId, "popUpId");
   }
   if (request.action === "getContentTabId") {
     meetWindowId = sender.tab.id;
-    console.log(meetWindowId, "meeeting window id");
+    // console.log(meetWindowId, "meeeting window id");
     // Send the tab ID back to the content script
   }
 
   if (request.action === "doSomething") {
     // Access the popup's window object
-    console.log("Hello from popup.js");
+    // console.log("Hello from popup.js");
     chrome.tabs.sendMessage(meetWindowId, { action: "startRecordingTimer" });
   }
   if (request.message === "closePreview") {
@@ -61,7 +61,7 @@ chrome.runtime.sendMessage({ action: "Mute-audio",message:mutedAudio });
       const key = `data_chunk_${index}`;
       const chunkData = { chunk, index, totalChunks: myArray.length };
       chrome.storage.local.set({ [key]: chunkData }, () => {
-        console.log(`Chunk ${index + 1} of ${myArray.length} stored`);
+        // console.log(`Chunk ${index + 1} of ${myArray.length} stored`);
       });
     });
     chrome.tabs.create({ url: request.url });
@@ -80,7 +80,7 @@ chrome.runtime.sendMessage({ action: "Mute-audio",message:mutedAudio });
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError);
       } else {
-        console.log("Object has been stored in chrome.storage.local");
+        // console.log("Object has been stored in chrome.storage.local");
       }
     });
   }
@@ -88,9 +88,9 @@ chrome.runtime.sendMessage({ action: "Mute-audio",message:mutedAudio });
 
 chrome.runtime.onConnect.addListener(function (externalPort) {
   externalPort.onDisconnect.addListener(function () {
-    console.log("onDisconnect");
+    // console.log("onDisconnect");
     chrome.tabs.sendMessage(meetWindowId, { message: "PopupClosed" });
   });
 
-  console.log("onConnect");
+  // console.log("onConnect");
 });

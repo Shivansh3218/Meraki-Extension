@@ -194,10 +194,10 @@ let insertingmute = setInterval(() => {
  try{
    if(document.getElementsByClassName("U26fgb JRY2Pb mUbCce kpROve yBiuPb y1zVCf HNeRed M9Bg4d")[0]!==null){
    let mutee = document.getElementsByClassName("U26fgb JRY2Pb mUbCce kpROve yBiuPb y1zVCf HNeRed M9Bg4d")[0];
-   console.log(mutee)
+  //  console.log(mutee)
    window.clearInterval(insertingmute)
    mutee.addEventListener("click", ()=>{muteVideoRecording = !muteVideoRecording 
-     console.log(muteVideoRecording, "mute video ")
+    //  console.log(muteVideoRecording, "mute video ")
    })
   
    }
@@ -213,17 +213,17 @@ console.log(err)
    try{
      if(document.getElementsByClassName("VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c uaILN JxICCe Uulb3c")[0]!==null){
      let insideMute = document.getElementsByClassName("VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c uaILN JxICCe Uulb3c")[0];;
-     console.log(insideMute)
+    //  console.log(insideMute)
      
      insideMute.addEventListener("click", ()=>{muteVideoRecording = !muteVideoRecording 
-       console.log(muteVideoRecording, "mute video ")
+      //  console.log(muteVideoRecording, "mute video ")
        if (muteVideoRecording === true) {
         muteAudio();
       } else {
         unmuteAudio();
       }
      })
-     console.log(muteVideoRecording, "mute video ")
+    //  console.log(muteVideoRecording, "mute video ")
      window.clearInterval(insideMuteInterval)
      }
    }
@@ -283,7 +283,6 @@ async function merakiClassChecker(url) {
   const parsed_data = await data.json();
   for (let ind = 0; ind < parsed_data.length; ind++) {
     if (parsed_data[ind].meet_link === url) {
-      flag = true;
       break;
     }
   }
@@ -297,7 +296,7 @@ const checked_url = merakiClassChecker(meet_url).then((res) =>
 
 setInterval(insertButton, 1000);
 
-console.log(checked_url, "checked url");
+// console.log(checked_url, "checked url");
 
 async function start() {
   startTime = new Date();
@@ -459,7 +458,7 @@ function muteAudio() {
   if (videoRecordingEnabled === true) {
     chrome.runtime.sendMessage({ action: "muteAudio", message: true });
   } else {
-    console.log("recording not enabled");
+    // console.log("recording not enabled");
   }
 }
 function unmuteAudio() {
@@ -531,11 +530,11 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       meetTimeBtn.innerText = `${hours}:${minutes}:${seconds}`;
       duration += 1000;
     }, 1000);
-    console.log("Received message from background:", message.data);
+    // console.log("Received message from background:", message.data);
     // Handle the message and perform actions in the content script
   }
   if (message.message === "PopupClosed") {
-    console.log("Recording ended");
+    // console.log("Recording ended");
     recButtonsContainer.innerHTML = "";
     recButtonsContainer.appendChild(redDot);
     recButtonsContainer.appendChild(recSessionTxt);
