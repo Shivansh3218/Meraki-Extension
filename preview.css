@@ -91,12 +91,10 @@ tr:not(:last-child) td {
   position: absolute;
   bottom: 1rem;
 }
-.blur-disabled{
-  background-color: gray;
-  color: white;
-}
+
 .pointerNone{
   pointer-events: none;
+  background-color: gray !important;
 }
 
 .modal {
@@ -149,6 +147,11 @@ tr:not(:last-child) td {
 }
 #upload-para{
   font-size: xx-large;
+}
+
+.blur-disabled{
+  background-color: gray;
+  color: white;
 }
 /* .video-preview {
   width: 30vw;

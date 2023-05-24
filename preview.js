@@ -1,5 +1,7 @@
 let loadingScreen = document.querySelector("#loading-screen");
 let buttonsContainer = document.querySelector(".buttons");
+let downloadAttendanceBtn  =  document.querySelector("#download-attendance")
+let downloadButton =  document.querySelector("#download-recording")
 // downloadBtn.addEventListener("click", getData);
 // getData()
 let resultArr = [];
@@ -106,12 +108,10 @@ async function getData() {
   videoElement.src = URL.createObjectURL(videoBlob);
   let loader = document.querySelector("#loader");
   loader.classList.add("none");
-  // videoElement.controls = true;
-  // videoElement.play();
+  videoElement.classList.remove("none")
 
-  const downloadButton = document.querySelector("#download-recording");
 
-  document.querySelector("#download-recording").classList.remove("pointerNone");
+  downloadButton.classList.remove("pointerNone")
 
   downloadButton.addEventListener("click", () => {
     // Create a download link
@@ -129,9 +129,10 @@ async function getData() {
     downloadLink.remove();
   });
   if (isMerakiCall === true) {
+    
+    submitBtn.classList.remove("pointerNone");
     submitBtn.addEventListener("click", uploadVideo);
   } else if (isMerakiCall === false) {
-    submitBtn.style.backgroundColor = "gray";
     submitBtn.addEventListener("click", () => {
       alert("This feature is accessible to the meraki server based classes only");
     });
@@ -143,7 +144,11 @@ async function getData() {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError);
     } else {
-      // console.log("chrome.storage.local cleared successfully.");
+      console.log("chrome.storage.local cleared successfully.");
+      chrome.storage.local.get("attendanceRecord", (result) => {
+        console.log(result , "inside clear ")
+      })
+      
     }
   });
 }
@@ -250,9 +255,7 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       document.querySelector("#tableLoader").classList.add("none");
       tableBody.classList.remove("none");
 
-      document
-        .querySelector("#download-attendance")
-        .classList.remove("pointerNone");
+    downloadAttendanceBtn.classList.remove("pointerNone");
     }
 
     document

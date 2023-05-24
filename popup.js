@@ -2,6 +2,7 @@ window.onload = function () {
   chrome.windows.getCurrent(function(popupWindow) {
     const popupId = popupWindow.id;
     console.log('Popup ID:', popupId);
+    document.title = `Popup ${popupId}`;
     chrome.runtime.sendMessage({action:"popupId", message:popupId});
   });
 };
@@ -73,6 +74,7 @@ function unmuteAudio() {
   }
 }
 function handlePause() {
+  console.log("message recieved to pause video")
   if (recorder.state === "recording") {
     // pausing video recording timer:-
     recorder.pause();
@@ -84,6 +86,7 @@ function handlePause() {
 }
 
 function handleDataAvailable(e) {
+  console.log(chunks)
   if (e.data) {
     chunks.push(e.data);
     const blobToBase64 = (blob) => {
@@ -232,8 +235,8 @@ async function stopRecording() {
   // chrome.runtime.sendMessage({ action: "emptyTabIDs" });
 }
 
-// Function to send a message to background.js
-function sendMessageToBackgroundScript(message) {
-  chrome.runtime.sendMessage(message);
-  // console.log("sending message");
-}
+// // Function to send a message to background.js
+// function sendMessageToBackgroundScript(message) {
+//   chrome.runtime.sendMessage(message);
+//   // console.log("sending message");
+// }

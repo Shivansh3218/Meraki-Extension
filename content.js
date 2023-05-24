@@ -58,9 +58,9 @@ recButtonsContainer.style.borderRadius = "5px";
 recButtonsContainer.style.cursor = "pointer";
 recButtonsContainer.appendChild(redDot);
 recButtonsContainer.appendChild(recSessionTxt);
-recButtonsContainer.style.position = "fixed";
-recButtonsContainer.style.top = "20px";
-recButtonsContainer.style.left = "20px";
+// recButtonsContainer.style.position = "fixed";
+// recButtonsContainer.style.top = "20px";
+recButtonsContainer.style.marginLeft = "30px";
 
 let pauseBtn = document.createElement("button");
 pauseBtn.id = "pauseBtn";
@@ -98,22 +98,12 @@ meetTimeBtn.style.color = "white";
 meetTimeBtn.style.backgroundColor = "#6d6d6d";
 meetTimeBtn.style.fontSize = "16px";
 
-// let muteBtn = null;
-
 // "duration" variable - to calculate duration of video recording:-
 let duration = 0;
 
 recButtonsContainer.addEventListener("click", () => {
   if (videoRecordingEnabled == false) {
-    clearInterval(intervalId);
-    duration = 0;
-    meetTimeBtn.innerText = "00:00:00";
     shareScreen();
-    recButtonsContainer.innerHTML = "";
-    recButtonsContainer.appendChild(redDot);
-    recButtonsContainer.appendChild(meetTimeBtn);
-    recButtonsContainer.appendChild(pauseBtn);
-    recButtonsContainer.appendChild(stopBtn);
   }
 });
 pauseBtn.addEventListener("click", () => handlePause());
@@ -141,7 +131,7 @@ function insertRecButton() {
       // )[0];
       ui_buttons = document.getElementsByClassName("VfPpkd-kBDsod NtU4hc");
       document
-        .getElementsByClassName("jsNRx")[0]
+        .getElementsByClassName("lefKC")[0]
         .appendChild(recButtonsContainer);
     }
   } catch (error) {
@@ -149,96 +139,67 @@ function insertRecButton() {
   }
 }
 
-// if(muteBtn!==null){
-//   console.log(muteBtn)
-//   muteBtn.addEventListener("click", () => {
-//     console.log("Hello mute is clicked");
-//   });
-// }
-
-// Listen for changes to the mute button
-// let listen = false;
-// let userMuted = false;
-// let muteInterval;
-
-// if (listen === false) {
-//   muteInterval = setInterval(() => {
-//     if (document.querySelector(".Tmb7Fd") != null) {
-//       console.log("listen");
-//       listen = true;
-//       addMute();
-//     }
-//   }, 1000);
-// }
-// function addMute() {
-//   clearInterval(muteInterval);
-
-//   setTimeout(() => {
-//     let muteButton = document.querySelector("[jsname='BOHaEe']");
-//     muteButton.addEventListener("click", () => {
-//       userMuted = !userMuted;
-//       if (userMuted === true) {
-//         muteAudio();
-//       } else {
-//         unmuteAudio();
-//         userMuted = false;
-//       }
-//     });
-//   }, 1000);
-// }
-
-
-let muteVideoRecording =  false;
+let muteVideoRecording = false;
 
 let insertingmute = setInterval(() => {
- try{
-   if(document.getElementsByClassName("U26fgb JRY2Pb mUbCce kpROve yBiuPb y1zVCf HNeRed M9Bg4d")[0]!==null){
-   let mutee = document.getElementsByClassName("U26fgb JRY2Pb mUbCce kpROve yBiuPb y1zVCf HNeRed M9Bg4d")[0];
-  //  console.log(mutee)
-   window.clearInterval(insertingmute)
-   mutee.addEventListener("click", ()=>{muteVideoRecording = !muteVideoRecording 
-    //  console.log(muteVideoRecording, "mute video ")
-   })
-  
-   }
-   // let insideMute= document.getElementsByClassName("VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c uaILN JxICCe HNeRed Uulb3c")[0];
-   // console.log(insideMute)
- }
- catch(err){
-console.log(err)
- }
- }, 500);
+  try {
+    if (
+      document.getElementsByClassName(
+        "U26fgb JRY2Pb mUbCce kpROve yBiuPb y1zVCf HNeRed M9Bg4d"
+      )[0] !== null
+    ) {
+      let mutee = document.getElementsByClassName(
+        "U26fgb JRY2Pb mUbCce kpROve yBiuPb y1zVCf HNeRed M9Bg4d"
+      )[0];
+      //  console.log(mutee)
+      
+      mutee.addEventListener("click", () => {
+        muteVideoRecording = !muteVideoRecording;
+        //  console.log(muteVideoRecording, "mute video ")
+        console.log(
+          "outside meeting", "is meeting muted", muteVideoRecording)
+      });
+      
+      window.clearInterval(insertingmute);
+    }
+    // let insideMute= document.getElementsByClassName("VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c uaILN JxICCe HNeRed Uulb3c")[0];
+    // console.log(insideMute)
+  } catch (err) {
+    console.log(err);
+  }
+}, 500);
 
- let insideMuteInterval = setInterval(() => {
-   try{
-     if(document.getElementsByClassName("VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c uaILN JxICCe Uulb3c")[0]!==null){
-     let insideMute = document.getElementsByClassName("VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c uaILN JxICCe Uulb3c")[0];;
-    //  console.log(insideMute)
-     
-     insideMute.addEventListener("click", ()=>{muteVideoRecording = !muteVideoRecording 
+let insideMuteInterval = setInterval(() => {
+  try {
+    if (
+      document.getElementsByClassName(
+        "VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c uaILN JxICCe Uulb3c"
+      )[0] !== null
+    ) {
+      let insideMute = document.getElementsByClassName(
+        "VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c uaILN JxICCe Uulb3c"
+      )[0];
+
+
+      insideMute.addEventListener("click", () => {
+   
+        muteVideoRecording = !muteVideoRecording;
+        console.log(
+          "inside meeting", "is meeting muted", muteVideoRecording)
+        //  console.log(muteVideoRecording, "mute video ")
+        if (muteVideoRecording === true) {
+          muteAudio();
+        } else {
+          unmuteAudio();
+        }
+      });
       //  console.log(muteVideoRecording, "mute video ")
-       if (muteVideoRecording === true) {
-        muteAudio();
-      } else {
-        unmuteAudio();
-      }
-     })
-    //  console.log(muteVideoRecording, "mute video ")
-     window.clearInterval(insideMuteInterval)
-     }
-   }
-   catch(err){
- console.log(err)
-   }
-   }, 500);
-
-
-
-
-
-
-
-
+      window.clearInterval(insideMuteInterval);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}, 500);
 
 let insertBtnInterval = setInterval(() => {
   insertRecButton();
@@ -425,7 +386,7 @@ function toTimeFormat(time) {
 
 let recorderWorking = true;
 
-function handlePause() {
+function handlePause(e) {
   chrome.runtime.sendMessage({ action: "pauseVideo" });
   if (recorderWorking === true) {
     // pausing video recording timer:-
@@ -473,12 +434,19 @@ function shareScreen() {
     closeURL: previewPageUrl,
   });
   if (videoRecordingEnabled === false) {
-    chrome.runtime.sendMessage({ action: "openPopUp" });
-    setTimeout(()=>{
-chrome.runtime.sendMessage({action:"Mute-audio", message:muteVideoRecording})
-    },500)
+    chrome.runtime.sendMessage({
+      action: "openPopUp",
+      message: "firstOpenPopUp",
+    });
+    setTimeout(() => {
+      chrome.runtime.sendMessage({
+        action: "Mute-audio",
+        message: muteVideoRecording,
+      });
+    }, 500);
+
+    videoRecordingEnabled = true;
   }
-  videoRecordingEnabled = true;
 }
 
 async function stopRecording() {
@@ -519,6 +487,14 @@ async function stopRecording() {
 // Listen for messages from background.js
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.action === "startRecordingTimer") {
+    duration = 0;
+    clearInterval(intervalId);
+    meetTimeBtn.innerText = "00:00:00";
+    recButtonsContainer.innerHTML = "";
+    recButtonsContainer.appendChild(redDot);
+    recButtonsContainer.appendChild(meetTimeBtn);
+    recButtonsContainer.appendChild(pauseBtn);
+    recButtonsContainer.appendChild(stopBtn);
     intervalId = setInterval(() => {
       const hours = Math.floor(duration / 3600000)
         .toString()
@@ -539,6 +515,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     recButtonsContainer.appendChild(redDot);
     recButtonsContainer.appendChild(recSessionTxt);
     videoRecordingEnabled = false;
+  }
+  if (message.message === "closePreviewFirst") {
+    alert("Please close the preview page first to record this meeting");
   }
 });
 

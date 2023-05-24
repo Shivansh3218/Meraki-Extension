@@ -2,34 +2,73 @@ let myArray = [];
 let popUpId;
 let meetWindowId;
 let isPopUpOpened = false;
+let firstPopUpOpen = true;
+let popupArr = [];
+// closePopup();
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "openPopUp") {
-    // Access the popup's window object
-    if(isPopUpOpened===false){
-      chrome.windows.create({
+function openPopup() {
+  if (!isPopUpOpened) {
+    console.log("inside popupopend, running twice? ");
+    chrome.windows.create(
+      {
         url: "popup.html",
         type: "popup",
         width: 700,
         height: 600,
-      });
-      isPopUpOpened = true
-      // background.js
-      let mutedAudio = request.message
-chrome.runtime.sendMessage({ action: "Mute-audio",message:mutedAudio });
-
-    }else{console.log("popup already opened")}
- 
+      },
+      function (window) {
+        // popUpId = window.id; // Store the ID of the newly opened popup
+        console.log(window.id, "new popup id");
+        isPopUpOpened = true;
+      }
+    );
+  } else {
+    console.log("Popup already opened");
   }
+}
+
+
+function closePopup(id) {
+  console.log(popUpId, isPopUpOpened, "inside close popup");
+  if (isPopUpOpened) {
+    chrome.windows.remove(id, function () {
+      if (chrome.runtime.lastError) {
+        try {
+          console.log(chrome.runtime.lastError);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    });
+  }
+  isPopUpOpened = false;
+}
+
+
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "openPopUp") {
+    console.log("message recieved open pop up is popup opened?", isPopUpOpened);
+    openPopup();
+  }
+
   if (request.action === "popupId") {
     // Access the popup's window object
     popUpId = request.message;
-    // console.log(popUpId, "popUpId");
+    if (connect > 1) {
+      popupArr.push(popUpId);
+      console.log(popupArr);
+      for (let i = 0; i < popupArr.length - 1; i++) {
+        closePopup(popupArr[i]);
+      }
+      popUpId = popupArr[popupArr.length - 1];
+    }
+    console.log(popUpId, "popUpId");
   }
   if (request.action === "getContentTabId") {
     meetWindowId = sender.tab.id;
+    console.log(meetWindowId, "content window id");
     // console.log(meetWindowId, "meeeting window id");
-    // Send the tab ID back to the content script
   }
 
   if (request.action === "doSomething") {
@@ -37,7 +76,11 @@ chrome.runtime.sendMessage({ action: "Mute-audio",message:mutedAudio });
     // console.log("Hello from popup.js");
     chrome.tabs.sendMessage(meetWindowId, { action: "startRecordingTimer" });
   }
+  if (request.action === "stopRecording") {
+    console.log("stop recording message to background");
+  }
   if (request.message === "closePreview") {
+    console.log("close preview event");
     myArray = [];
     try {
       chrome.tabs.query(
@@ -46,7 +89,16 @@ chrome.runtime.sendMessage({ action: "Mute-audio",message:mutedAudio });
         },
         function (tabs) {
           if (tabs.length > 0) {
-            chrome.tabs.remove(tabs[0].id, function () {});
+            console.log(tabs[0].id, "tabs id of preview");
+            chrome.tabs.remove(tabs[0].id, function () {
+              if (chrome.runtime.lastError) {
+                try {
+                } catch (err) {
+                  console.log(err);
+                }
+                console.log(chrome.runtime.lastError);
+              }
+            });
           }
         }
       );
@@ -55,8 +107,7 @@ chrome.runtime.sendMessage({ action: "Mute-audio",message:mutedAudio });
     }
   }
   if (request.action === "createTab") {
-    popUpId = null;
-    meetWindowId = null;
+    console.log("message to create tab", popUpId, "current popup id", myArray);
     myArray.map((chunk, index) => {
       const key = `data_chunk_${index}`;
       const chunkData = { chunk, index, totalChunks: myArray.length };
@@ -65,13 +116,7 @@ chrome.runtime.sendMessage({ action: "Mute-audio",message:mutedAudio });
       });
     });
     chrome.tabs.create({ url: request.url });
-    chrome.windows.getAll({ populate: true }, function (windows) {
-      windows.forEach(function (window) {
-        if (window.tabs[0].url.endsWith("popup.html")) {
-          chrome.windows.remove(window.id);
-        }
-      });
-    });
+    closePopup(popUpId);
   } else if (request.type == "base64Data") {
     myArray.push(request.data);
   } else if (request.type === "attendance") {
@@ -86,11 +131,24 @@ chrome.runtime.sendMessage({ action: "Mute-audio",message:mutedAudio });
   }
 });
 
+let connect = 0;
 chrome.runtime.onConnect.addListener(function (externalPort) {
   externalPort.onDisconnect.addListener(function () {
-    // console.log("onDisconnect");
+    console.log("onDisconnect");
+    console.log(meetWindowId, "content window id inside disconnect");
     chrome.tabs.sendMessage(meetWindowId, { message: "PopupClosed" });
+    isPopUpOpened = false;
   });
-
-  // console.log("onConnect");
+  console.log("onConnect");
+  // connect += 1;
+  // console.log(
+  //   connect,
+  //   isPopUpOpened,
+  //   "connect count",
+  //   `is connected with popupid = ${popUpId}`
+  // );
+  // if(connect>1){
+  //   closePopup(popupArr[popupArr[length-2]])
+  // }
 });
+
