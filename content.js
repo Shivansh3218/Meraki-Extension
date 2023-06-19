@@ -1,3 +1,12 @@
+// window.onload = () => {
+// };
+
+setTimeout(() => {
+  
+  chrome.runtime.sendMessage({ action: "getContentTabId" });
+}, 1000);
+
+
 let videoRecordingEnabled = false;
 let intervalId;
 const previewPageUrl = chrome.runtime.getURL("preview.html");
@@ -103,10 +112,10 @@ let duration = 0;
 
 recButtonsContainer.addEventListener("click", () => {
   if (videoRecordingEnabled == false) {
-    shareScreen();
+    StartVideoRecording();
   }
 });
-pauseBtn.addEventListener("click", () => handlePause());
+pauseBtn.addEventListener("click", () => SendPauseMessage());
 
 stopBtn.addEventListener("click", (event) => {
   let endButton = document.querySelector(".Gt6sbf");
@@ -116,7 +125,7 @@ stopBtn.addEventListener("click", (event) => {
   }, 2000);
   event.stopPropagation();
   if (videoRecordingEnabled == true) {
-    stopRecording();
+    stopVideoRecording();
     recButtonsContainer.innerHTML = "";
     recButtonsContainer.appendChild(redDot);
     recButtonsContainer.appendChild(recSessionTxt);
@@ -135,7 +144,7 @@ function insertRecButton() {
         .appendChild(recButtonsContainer);
     }
   } catch (error) {
-    console.log(error);
+    // console.log(error);
   }
 }
 
@@ -181,6 +190,7 @@ let insideMuteInterval = setInterval(() => {
       )[0];
 
 
+      
       insideMute.addEventListener("click", () => {
    
         muteVideoRecording = !muteVideoRecording;
@@ -188,16 +198,16 @@ let insideMuteInterval = setInterval(() => {
           "inside meeting", "is meeting muted", muteVideoRecording)
         //  console.log(muteVideoRecording, "mute video ")
         if (muteVideoRecording === true) {
-          muteAudio();
+          handleMute();
         } else {
-          unmuteAudio();
+          handleUnMute();
         }
       });
       //  console.log(muteVideoRecording, "mute video ")
       window.clearInterval(insideMuteInterval);
     }
   } catch (err) {
-    console.log(err);
+    // console.log(err);
   }
 }, 500);
 
@@ -229,35 +239,43 @@ function insertButton() {
 }
 
 async function merakiClassChecker(url) {
-  const API_URL = "https://dev-api.navgurukul.org/classes";
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjM5Nzc2IiwiZW1haWwiOiJzaGl2YW5zaEBuYXZndXJ1a3VsLm9yZyIsImlhdCI6MTY3OTAzNTE4OCwiZXhwIjoxNzEwNTkyNzg4fQ.Ayzgfkk9k6PE_kaybCAznNeEXmF01zp7pLa5zOQ0f4k";
+  // const API_URL = "https://dev-api.navgurukul.org/classes";
+  // const token =
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjM5Nzc2IiwiZW1haWwiOiJzaGl2YW5zaEBuYXZndXJ1a3VsLm9yZyIsImlhdCI6MTY3OTAzNTE4OCwiZXhwIjoxNzEwNTkyNzg4fQ.Ayzgfkk9k6PE_kaybCAznNeEXmF01zp7pLa5zOQ0f4k";
 
-  const data = await fetch(API_URL, {
-    method: "GET",
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-      "version-code": 99,
+    const data = await fetch("https://dev-api.navgurukul.org/classes", {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjM5Nzc2IiwiZW1haWwiOiJzaGl2YW5zaEBuYXZndXJ1a3VsLm9yZyIsImlhdCI6MTY3OTAzNTE4OCwiZXhwIjoxNzEwNTkyNzg4fQ.Ayzgfkk9k6PE_kaybCAznNeEXmF01zp7pLa5zOQ0f4k`,
+        "version-code": 99,
     },
-  });
-  const parsed_data = await data.json();
+  })
+  let parsed_data = await data.json();
+  // console.log(parsed_data, "parsed data")
   for (let ind = 0; ind < parsed_data.length; ind++) {
     if (parsed_data[ind].meet_link === url) {
+      flag = true
       break;
     }
   }
   return flag;
 }
 
-let meet_url = window.location.href;
+let meet_url = window.location.href.slice(0,36);
+console.log(meet_url)
 const checked_url = merakiClassChecker(meet_url).then((res) =>
-  console.log(res, "checked url promise")
+  console.log(res, "checked url promise", flag,"returned value")
+
+  
 );
+
+console.log(merakiClassChecker(meet_url), "checked meet url")
+
+// console.log(checked_url, "checked url");
 
 setInterval(insertButton, 1000);
 
-// console.log(checked_url, "checked url");
 
 async function start() {
   startTime = new Date();
@@ -386,7 +404,7 @@ function toTimeFormat(time) {
 
 let recorderWorking = true;
 
-function handlePause(e) {
+function SendPauseMessage(e) {
   chrome.runtime.sendMessage({ action: "pauseVideo" });
   if (recorderWorking === true) {
     // pausing video recording timer:-
@@ -415,20 +433,20 @@ function handlePause(e) {
 
 //mute and unmute functions
 
-function muteAudio() {
+function handleMute() {
   if (videoRecordingEnabled === true) {
     chrome.runtime.sendMessage({ action: "muteAudio", message: true });
   } else {
     // console.log("recording not enabled");
   }
 }
-function unmuteAudio() {
+function handleUnMute() {
   if (videoRecordingEnabled === true) {
     chrome.runtime.sendMessage({ action: "unmuteAudio", message: false });
   }
 }
 
-function shareScreen() {
+function StartVideoRecording() {
   chrome.runtime.sendMessage({
     message: "closePreview",
     closeURL: previewPageUrl,
@@ -449,7 +467,9 @@ function shareScreen() {
   }
 }
 
-async function stopRecording() {
+async function stopVideoRecording() {
+  
+  window.onbeforeunload = null;
   // stop timer for video duration calculation:-
   clearInterval(intervalId);
   duration = 0;
@@ -463,7 +483,6 @@ async function stopRecording() {
   let data = {
     attendies_data: JSON.stringify(record),
   };
-
   if (flag === true) {
     setTimeout(() => {
       fetch("https://merd-api.merakilearn.org/attendance", {
@@ -521,6 +540,4 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   }
 });
 
-window.onload = () => {
-  chrome.runtime.sendMessage({ action: "getContentTabId" });
-};
+window.onbeforeunload = null

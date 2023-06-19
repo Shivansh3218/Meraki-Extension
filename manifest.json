@@ -1,6 +1,6 @@
 {
   "name": "Meraki G-meet extension",
-  "version": "1.7.3",
+  "version": "1.7.7",
   "manifest_version": 3,
   "description": "This is a valuable tool to record Google Meet sessions and keep track of the attendance of the participants.",
   "icons": {

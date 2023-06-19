@@ -62,7 +62,8 @@ tr:not(:last-child) td {
 
 .student-details-heading {
   text-align: center;
-  margin-top: 6rem;
+  margin-top: 3rem;
+  margin-bottom: 2rem;
 }
 #outline-container {
   display: flex;
@@ -152,6 +153,22 @@ tr:not(:last-child) td {
 .blur-disabled{
   background-color: gray;
   color: white;
+}
+
+#warning-svg{
+  height: 1.3rem;
+  color: red;
+  margin: 1rem 0.1rem;
+}
+#warning-para{
+  color:  rgb(255, 0, 0);
+  font-size: 1rem;
+  margin: 1rem 0.2rem;
+}
+#warning-span{
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
 }
 /* .video-preview {
   width: 30vw;

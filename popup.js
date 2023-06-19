@@ -1,32 +1,36 @@
 window.onload = function () {
-  chrome.windows.getCurrent(function(popupWindow) {
-    const popupId = popupWindow.id;
-    console.log('Popup ID:', popupId);
-    document.title = `Popup ${popupId}`;
-    chrome.runtime.sendMessage({action:"popupId", message:popupId});
-  });
+  //   chrome.windows.getCurrent(function(popupWindow) {
+  //     const popupId = popupWindow.id;
+  //     console.log('Popup ID:', popupId);
+  //     document.title = `Popup ${popupId}`;
+  //     chrome.runtime.sendMessage({action:"popupId", message:popupId});
+  //   });
 };
-var port = chrome.runtime.connect()
+var port = chrome.runtime.connect();
+let startRecordMeetingInterval = setInterval(() => {
+  try {
+    if (startRec !== null) {
+      startRec.addEventListener("click", shareScreen);
+      window.clearInterval(startRecordMeetingInterval);
+    }
+  } catch (er) {
+    console.log(er);
+  }
+}, 100);
 
-window.onbeforeunload = (event) => {
-  const confirmationMessage = 'Closing this tab will cause you to lose your meeting recording. Are you sure you want to leave?';
-  event.preventDefault();
-  event.returnValue = confirmationMessage;
-};
+
 let startRec = document.querySelector("#start-recording");
 let stopRec = document.querySelector("#stop-recording");
 
-let isMuted ;
+let isMuted;
 let stream = null;
 let audio = null;
 let mixedStream = null;
 let chunks = [];
 let recorder = null;
 let isRecordingVideo = false;
-let intervalId;
+// let intervalId;
 const previewUrl = chrome.runtime.getURL("preview.html");
-
-startRec.addEventListener("click", shareScreen);
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "stopRecording") {
@@ -38,16 +42,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // console.log("Start recording");
   }
   if (request.action === "muteAudio") {
-    muteAudio(); 
-    isMuted = request.message
+    muteAudio();
+    isMuted = request.message;
   }
   if (request.action === "Mute-audio") {
-    isMuted = request.message
+    isMuted = request.message;
     // console.log(isMuted,"muted from chrome.runtime.send")
   }
   if (request.action === "unmuteAudio") {
     unmuteAudio();
-    isMuted = request.message
+    isMuted = request.message;
   }
   if (request.action === "pauseVideo") {
     handlePause();
@@ -69,12 +73,12 @@ function unmuteAudio() {
     localStream.getAudioTracks().forEach(function (track) {
       track.enabled = true;
     });
-  }else{
+  } else {
     // console.log(isMuted, "The call is un muted")
   }
 }
 function handlePause() {
-  console.log("message recieved to pause video")
+  console.log("message recieved to pause video");
   if (recorder.state === "recording") {
     // pausing video recording timer:-
     recorder.pause();
@@ -86,7 +90,7 @@ function handlePause() {
 }
 
 function handleDataAvailable(e) {
-  console.log(chunks)
+  console.log(chunks);
   if (e.data) {
     chunks.push(e.data);
     const blobToBase64 = (blob) => {
@@ -177,29 +181,33 @@ function shareScreen() {
     })
     .catch(function (err) {
       console.log(err);
-
     });
 }
 
 function onCombinedStreamAvailable(stream) {
   localStream = stream;
   if (localStream != null) {
-
     recorder = new MediaRecorder(localStream);
     // console.log(isMuted , "Mute inside when the recording start")
-      if (isMuted === true) {
-        localStream.getAudioTracks().forEach(function (track) {
-          track.enabled = !track.enabled;
-        });
-      } else {
-        localStream.getAudioTracks().forEach(function (track) {
-          track.enabled = true;
-        });
-      }
+    if (isMuted === true) {
+      localStream.getAudioTracks().forEach(function (track) {
+        track.enabled = !track.enabled;
+      });
+    } else {
+      localStream.getAudioTracks().forEach(function (track) {
+        track.enabled = true;
+      });
+    }
     // recorder.onstop = stopRecording;
     recorder.ondataavailable = handleDataAvailable;
 
     recorder.start(1000);
+    window.onbeforeunload = (event) => {
+      const confirmationMessage =
+        "Closing this tab will cause you to lose your meeting recording. Are you sure you want to leave?";
+      event.preventDefault();
+      event.returnValue = confirmationMessage;
+    };
     // console.log(isRecordingVideo, "is video recording")
     chrome.runtime.sendMessage({
       action: "doSomething",
@@ -222,16 +230,19 @@ function onCombinedStreamAvailable(stream) {
 
 async function stopRecording() {
   // stop timer for video duration calculation:-
-  if (recorder.state !== "inactive") {
-    recorder.stop();
+  try {
+    if (recorder.state !== "inactive") {
+      recorder.stop();
+    }
+    isRecordingVideo = false;
+    stop();
+
+    window.onbeforeunload = null;
+
+    chrome.runtime.sendMessage({ action: "createTab", url: previewUrl });
+  } catch (error) {
+    console.log(error);
   }
-  isRecordingVideo = false;
-  stop();
-
-  window.onbeforeunload = null;
-
-  chrome.runtime.sendMessage({ action: "createTab", url: previewUrl });
-
   // chrome.runtime.sendMessage({ action: "emptyTabIDs" });
 }
 
