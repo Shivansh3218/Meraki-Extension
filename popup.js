@@ -1,11 +1,3 @@
-window.onload = function () {
-  //   chrome.windows.getCurrent(function(popupWindow) {
-  //     const popupId = popupWindow.id;
-  //     console.log('Popup ID:', popupId);
-  //     document.title = `Popup ${popupId}`;
-  //     chrome.runtime.sendMessage({action:"popupId", message:popupId});
-  //   });
-};
 var port = chrome.runtime.connect();
 let startRecordMeetingInterval = setInterval(() => {
   try {
@@ -29,7 +21,6 @@ let mixedStream = null;
 let chunks = [];
 let recorder = null;
 let isRecordingVideo = false;
-// let intervalId;
 const previewUrl = chrome.runtime.getURL("preview.html");
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -39,7 +30,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.action === "start-Recording") {
     shareScreen();
-    // console.log("Start recording");
   }
   if (request.action === "muteAudio") {
     muteAudio();
@@ -47,7 +37,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
   if (request.action === "Mute-audio") {
     isMuted = request.message;
-    // console.log(isMuted,"muted from chrome.runtime.send")
   }
   if (request.action === "unmuteAudio") {
     unmuteAudio();
@@ -64,8 +53,6 @@ function muteAudio() {
       track.enabled = !track.enabled;
     });
   } else {
-    // console.log("recording not enabled");
-    // console.log(isMuted, "The call is muted")
   }
 }
 function unmuteAudio() {
@@ -74,7 +61,6 @@ function unmuteAudio() {
       track.enabled = true;
     });
   } else {
-    // console.log(isMuted, "The call is un muted")
   }
 }
 function handlePause() {
@@ -188,7 +174,6 @@ function onCombinedStreamAvailable(stream) {
   localStream = stream;
   if (localStream != null) {
     recorder = new MediaRecorder(localStream);
-    // console.log(isMuted , "Mute inside when the recording start")
     if (isMuted === true) {
       localStream.getAudioTracks().forEach(function (track) {
         track.enabled = !track.enabled;
@@ -198,7 +183,6 @@ function onCombinedStreamAvailable(stream) {
         track.enabled = true;
       });
     }
-    // recorder.onstop = stopRecording;
     recorder.ondataavailable = handleDataAvailable;
 
     recorder.start(1000);
@@ -208,9 +192,8 @@ function onCombinedStreamAvailable(stream) {
       event.preventDefault();
       event.returnValue = confirmationMessage;
     };
-    // console.log(isRecordingVideo, "is video recording")
     chrome.runtime.sendMessage({
-      action: "doSomething",
+      action: "startingRecording",
       message: "recording-started",
     });
 
@@ -220,11 +203,8 @@ function onCombinedStreamAvailable(stream) {
         state: "minimized",
       });
     });
-    // console.log(recorder.state);
   } else {
     console.log("localStream is missing");
-
-    // chrome.runtime.sendMessage({value:"recordingNotStarted"})
   }
 }
 
@@ -243,11 +223,5 @@ async function stopRecording() {
   } catch (error) {
     console.log(error);
   }
-  // chrome.runtime.sendMessage({ action: "emptyTabIDs" });
 }
 
-// // Function to send a message to background.js
-// function sendMessageToBackgroundScript(message) {
-//   chrome.runtime.sendMessage(message);
-//   // console.log("sending message");
-// }

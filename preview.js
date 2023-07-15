@@ -1,7 +1,15 @@
 let loadingScreen = document.querySelector("#loading-screen");
 let buttonsContainer = document.querySelector(".buttons");
 let downloadAttendanceBtn  =  document.querySelector("#download-attendance")
-let downloadButton =  document.querySelector("#download-recording")
+let downloadButton =  document.querySelector("#download-recording");
+let meetingIDSpan = document.querySelector("#meetingID");
+let meetingTitleSpan = document.querySelector("#meetingTitle");
+let meetingDateSpan = document.querySelector("#meetingDate");
+let meetingTimeSpan = document.querySelector("#meetingTime");
+let totalStudentsSpan = document.querySelector("#totalStudents");
+let totalMeetingDurationSpan = document.querySelector(
+  "#totalMeetingDurationSpan"
+);
 // downloadBtn.addEventListener("click", getData);
 // getData()
 let resultArr = [];
@@ -124,14 +132,32 @@ async function getData() {
     downloadLink.click();
 
     // Clean up
-
     resultArr = [];
     downloadLink.remove();
   });
   if (isMerakiCall === true) {
-    
+    let data = {
+      attendies_data: JSON.stringify(attendanceRecord),
+    };
     submitBtn.classList.remove("pointerNone");
     submitBtn.addEventListener("click", uploadVideo);
+    
+    setTimeout(() => {
+      fetch("https://merd-api.merakilearn.org/attendance", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Success:", data);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }, 2000);
   } else if (isMerakiCall === false) {
     submitBtn.addEventListener("click", () => {
       alert("This feature is accessible to the meraki server based classes only");
@@ -158,32 +184,29 @@ chrome.storage.local.get("attendanceRecord", (result) => {
     console.error(chrome.runtime.lastError);
   } else {
     const attendance = result.attendanceRecord;
+    console.log(attendance, "Attendance record")
 
     isMerakiCall = attendance.isMerakiCall;
     console.log(isMerakiCall, "is a meraki call");
+    let gmeetTitle = attendance.meeting_title
     let attendeesNames = attendance.attendee_names;
     let meetingID = attendance.meet_code;
     let attendedDurationInSec = attendance.attendedDurationInSec;
     let meetingTime = attendance.meeting_time;
     let meet_duration = attendance.meet_duration;
+    let studentsJoiningTime = attendance.studentsJoiningTime;
+    let lastSeenAt = attendance.lastSeenAt
     let date = new Date();
     let extractedDate = new Date(date);
     let startTimeString = timeConverter(attendance.startMeetTime);
     let dateString = date.toString().slice(4, 15);
     let timeString = timeConverter(extractedDate.toLocaleTimeString());
-    let meetingIDSpan = document.querySelector("#meetingID");
-    let meetingTitleSpan = document.querySelector("#meetingTitle");
-    let meetingDateSpan = document.querySelector("#meetingDate");
-    let meetingTimeSpan = document.querySelector("#meetingTime");
-    let totalStudentsSpan = document.querySelector("#totalStudents");
-    let totalMeetingDurationSpan = document.querySelector(
-      "#totalMeetingDurationSpan"
-    );
+
 
     videoName = result.attendanceRecord.meeting_title;
     totalMeetingDurationSpan.innerText += `: ${meet_duration}`;
     totalStudentsSpan.innerText += `: ${JSON.parse(attendeesNames).length}`;
-    meetingTitleSpan.innerText += `: ${result.attendanceRecord.meeting_title}`;
+    meetingTitleSpan.innerText += `: ${gmeetTitle}`;
     meetingIDSpan.innerText += `: ${meetingID}`;
     meetingDateSpan.innerText += `: ${dateString}`;
     meetingTimeSpan.innerText += `${startTimeString} to ${timeString}`;
@@ -196,6 +219,8 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       meet_duration: meet_duration,
       meeting_time: meetingTime,
       meeting_title: meetingID,
+      studentsJoiningTime:JSON.parse(studentsJoiningTime),
+      lastSeenAt:JSON.parse(lastSeenAt)
     };
     // console.log(data);
 
@@ -234,7 +259,7 @@ chrome.storage.local.get("attendanceRecord", (result) => {
 
       return timeString;
     }
-
+console.log(data.studentsJoiningTime , "Student joining time")
     const tableBody = document.querySelector("#myTable");
     for (let i = 0; i < Math.max(data.attendee_names.length, 1); i++) {
       const row = document.createElement("tr");
@@ -242,14 +267,29 @@ chrome.storage.local.get("attendanceRecord", (result) => {
       array1Cell.textContent = data.attendee_names[i] || "";
       row.appendChild(array1Cell);
 
-      const myStringCell = document.createElement("td");
-      myStringCell.textContent = i === 0 ? meet_duration : meet_duration;
-      row.appendChild(myStringCell);
+      const studentSeenAt = document.createElement("td");
+      studentSeenAt.textContent =
+       data.studentsJoiningTime[i] || "";
+      row.appendChild(studentSeenAt);
+
+       
+      const studentLastSeenAt = document.createElement("td");
+      studentLastSeenAt.textContent =
+       data.lastSeenAt[i] || "";
+      row.appendChild(studentLastSeenAt);
+
+      const meetDuration = document.createElement("td");
+      meetDuration.textContent = i === 0 ? meet_duration : meet_duration;
+      row.appendChild(meetDuration);
       // Create a cell for array2 data
-      const array2Cell = document.createElement("td");
-      array2Cell.textContent =
+      const attendeDuration = document.createElement("td");
+      attendeDuration.textContent =
         convertSecondsToTime(data.attendedDurationInSec[i]) || "";
-      row.appendChild(array2Cell);
+      row.appendChild(attendeDuration);
+      // Append the row to the table body
+      tableBody.appendChild(row);
+      
+
       // Append the row to the table body
       tableBody.appendChild(row);
       document.querySelector("#tableLoader").classList.add("none");
@@ -289,19 +329,19 @@ chrome.storage.local.get("attendanceRecord", (result) => {
   }
 });
 
-fetch(
-  "https://merd-api.merakilearn.org/attendance/createdTempCredentialsForUploadVideo",
-  {
-    method: "POST",
-  }
-)
-  .then((res) => res.json())
-  .then((data) => {
-    accessKeyId = data.Credentials.AccessKeyId;
-    secretAccessKey = data.Credentials.SecretAccessKey;
-    sessionToken = data.Credentials.SessionToken;
-    bucketName = data.Bucket;
-  });
+// fetch(
+//   "https://merd-api.merakilearn.org/attendance/createdTempCredentialsForUploadVideo",
+//   {
+//     method: "POST",
+//   }
+// )
+//   .then((res) => console.log(res.json()))
+//   .then((data) => {
+//     accessKeyId = data.Credentials.AccessKeyId;
+//     secretAccessKey = data.Credentials.SecretAccessKey;
+//     sessionToken = data.Credentials.SessionToken;
+//     bucketName = data.Bucket;
+//   });
 
 function uploadVideo(event) {
   event.preventDefault(); // prevent form submission

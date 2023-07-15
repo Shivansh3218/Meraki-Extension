@@ -4,11 +4,9 @@ let meetWindowId;
 let isPopUpOpened = false;
 let firstPopUpOpen = true;
 let popupArr = [];
-// closePopup();
 
 function openPopup() {
   if (!isPopUpOpened) {
-    //console.log("inside popupopend, running twice? ");
     chrome.windows.create(
       {
         url: "popup.html",
@@ -18,60 +16,57 @@ function openPopup() {
       },
       function (window) {
         popUpId = window.id; // Store the ID of the newly opened popup
-        //console.log(window.id, "new popup id");
         isPopUpOpened = true;
       }
     );
   } else {
-    //console.log("Popup already opened");
   }
 }
 
 function closePopup(id) {
-  //console.log(popUpId, isPopUpOpened, "inside close popup");
   if (isPopUpOpened) {
     chrome.windows.remove(id, function () {
       if (chrome.runtime.lastError) {
-        try {
-          //console.log(chrome.runtime.lastError);
-        } catch (err) {
-          //console.log(err);
-        }
+        console.error(chrome.runtime.lastError);
       }
     });
   }
   isPopUpOpened = false;
 }
 
+async function doesWindowExist(windowId) {
+  try {
+    await chrome.windows.get(windowId, function (window) {
+      if (chrome.runtime.lastError) {
+        // An error occurred, which means the window does not exist
+        console.log("Window does not exist");
+        return false;
+      }
+      // Check if the window is present and accessible
+      if (window) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+  } catch (error) {}
+
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "openPopUp") {
-    //console.log("message recieved open pop up is popup opened?", isPopUpOpened);
     openPopup();
   }
 
   if (request.action === "popupId") {
     // Access the popup's window object
     popUpId = request.message;
-    // if (connect > 1) {
-    //   popupArr.push(popUpId);
-    //   //console.log(popupArr);
-    //   for (let i = 0; i < popupArr.length - 1; i++) {
-    //     closePopup(popupArr[i]);
-    //   }
-    //   popUpId = popupArr[popupArr.length - 1];
-    // }
-    //console.log(popUpId, "popUpId");
   }
   if (request.action === "getContentTabId") {
     meetWindowId = sender.tab.id;
-    //console.log(meetWindowId, "content window id");
-    // //console.log(meetWindowId, "meeeting window id");
   }
 
-  if (request.action === "doSomething") {
-    // Access the popup's window object
-    // //console.log("Hello from popup.js");
-    //console.log(meetWindowId, "meet window id in do something")
+  if (request.action === "startingRecording") {
     try {
       chrome.tabs.sendMessage(meetWindowId, { action: "startRecordingTimer" });
     } catch (err) {
@@ -79,10 +74,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
   }
   if (request.action === "stopRecording") {
-    //console.log("stop recording message to background");
   }
   if (request.message === "closePreview") {
-    //console.log("close preview event");
+    console.log("close preview event", request.closeURL);
     myArray = [];
     try {
       chrome.tabs.query(
@@ -91,43 +85,32 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         },
         function (tabs) {
           if (tabs.length > 0) {
-            //console.log(tabs[0].id, "tabs id of preview");
             chrome.tabs.remove(tabs[0].id, function () {
               if (chrome.runtime.lastError) {
                 try {
-                } catch (err) {
-                  //console.log(err);
-                }
-                //console.log(chrome.runtime.lastError);
+                } catch (err) {}
               }
             });
           }
         }
       );
-    } catch (er) {
-      //console.log(err);
-    }
+    } catch (er) {}
   }
   if (request.action === "createTab") {
-    //console.log("message to create tab", popUpId, "current popup id", myArray);
     myArray.map((chunk, index) => {
       const key = `data_chunk_${index}`;
       const chunkData = { chunk, index, totalChunks: myArray.length };
-      chrome.storage.local.set({ [key]: chunkData }, () => {
-        // //console.log(`Chunk ${index + 1} of ${myArray.length} stored`);
-      });
+      chrome.storage.local.set({ [key]: chunkData }, () => {});
     });
     chrome.tabs.create({ url: request.url });
-    // closePopup(popUpId);
-    chrome.windows.remove(popUpId, function () {
-      if (chrome.runtime.lastError) {
-        try {
-          //console.log(chrome.runtime.lastError);
-        } catch (err) {
-          //console.log(err);
+
+    if (doesWindowExist(popUpId)) {
+      chrome.windows.remove(popUpId, function () {
+        if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError);
         }
-      }
-    });
+      });
+    }
   } else if (request.type == "base64Data") {
     myArray.push(request.data);
   } else if (request.type === "attendance") {
@@ -136,7 +119,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError);
       } else {
-        // //console.log("Object has been stored in chrome.storage.local");
       }
     });
   }
@@ -145,24 +127,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 let connect = 0;
 chrome.runtime.onConnect.addListener(function (externalPort) {
   externalPort.onDisconnect.addListener(function () {
-    //console.log("onDisconnect");
-    //console.log(meetWindowId, "content window id inside disconnect");
-    try {
-      chrome.tabs.sendMessage(meetWindowId, { message: "PopupClosed" });
-    } catch (err) {
-      console.log(err);
+    console.log(meetWindowId, "meet window id on disconnect");
+    if (doesWindowExist(meetWindowId) === true) {
+      try {
+        chrome.tabs.sendMessage(meetWindowId, { message: "PopupClosed" });
+      } catch (err) {
+        console.log(err);
+      }
     }
+
     isPopUpOpened = false;
   });
-  //console.log("onConnect");
-  // connect += 1;
-  // //console.log(
-  //   connect,
-  //   isPopUpOpened,
-  //   "connect count",
-  //   `is connected with popupid = ${popUpId}`
-  // );
-  // if(connect>1){
-  //   closePopup(popupArr[popupArr[length-2]])
-  // }
 });

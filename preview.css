@@ -20,7 +20,7 @@ td {
   padding: 16px;
   border: none;
   border-bottom: 1px solid black;
-  text-align: left;
+  text-align: center;
 }
 tr:not(:last-child) td {
   border-bottom: none;
@@ -55,7 +55,7 @@ tr:not(:last-child) td {
 
 .video-head {
   margin-left: 30%;
-  margin-top: 4rem;
+  margin-top: 3rem;
   display: flex;
   gap: 2rem;
 }
@@ -63,6 +63,7 @@ tr:not(:last-child) td {
 .student-details-heading {
   text-align: center;
   margin-top: 3rem;
+  font-size: x-large;
   margin-bottom: 2rem;
 }
 #outline-container {
@@ -140,6 +141,11 @@ tr:not(:last-child) td {
   font-weight: bold;
   font-size: xx-large;
   color: whitesmoke;
+}
+
+#totalStudents,#totalMeetingDurationSpan {
+  font-size: large;
+  font: bold;
 }
 
 @keyframes spin {

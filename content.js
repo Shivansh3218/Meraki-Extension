@@ -2,10 +2,8 @@
 // };
 
 setTimeout(() => {
-  
   chrome.runtime.sendMessage({ action: "getContentTabId" });
 }, 1000);
-
 
 let videoRecordingEnabled = false;
 let intervalId;
@@ -36,7 +34,8 @@ let yyyy = date.getFullYear();
 date = dd + "-" + mm + "-" + yyyy;
 let sortedtstudentsNameSet = [];
 let studentsAttendedDuration = [];
-//   let studentsJoiningTime = [];
+  let studentsJoiningTime = [];
+  let lastSeenAt = [];
 let mapKeys = studentDetails.keys();
 
 const redDot = document.createElement("span");
@@ -56,7 +55,6 @@ recButtonsContainer.style.alignItems = "center";
 recButtonsContainer.style.textAlign = "center";
 recButtonsContainer.style.gap = "2px";
 recButtonsContainer.id = "recButtonsContainer";
-// recButtonsContainer.className = "Jyj1Td CkXZgc";
 recButtonsContainer.style.border = "none";
 recButtonsContainer.style.backgroundColor = "#6d6d6d";
 recButtonsContainer.style.color = "white";
@@ -67,13 +65,10 @@ recButtonsContainer.style.borderRadius = "5px";
 recButtonsContainer.style.cursor = "pointer";
 recButtonsContainer.appendChild(redDot);
 recButtonsContainer.appendChild(recSessionTxt);
-// recButtonsContainer.style.position = "fixed";
-// recButtonsContainer.style.top = "20px";
 recButtonsContainer.style.marginLeft = "30px";
 
 let pauseBtn = document.createElement("button");
 pauseBtn.id = "pauseBtn";
-// recButton.className = "Jyj1Td CkXZgc";
 pauseBtn.innerHTML = "&#10074;&#10074;";
 pauseBtn.style.border = "none";
 pauseBtn.style.backgroundColor = "white";
@@ -135,16 +130,12 @@ stopBtn.addEventListener("click", (event) => {
 function insertRecButton() {
   try {
     if (document.getElementsByClassName("VfPpkd-kBDsod NtU4hc").length > 0) {
-      // muteBtn = document.getElementsByClassName(
-      //   "VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c uaILN JxICCe HNeRed Uulb3c"
-      // )[0];
       ui_buttons = document.getElementsByClassName("VfPpkd-kBDsod NtU4hc");
       document
         .getElementsByClassName("lefKC")[0]
         .appendChild(recButtonsContainer);
     }
   } catch (error) {
-    // console.log(error);
   }
 }
 
@@ -160,22 +151,14 @@ let insertingmute = setInterval(() => {
       let mutee = document.getElementsByClassName(
         "U26fgb JRY2Pb mUbCce kpROve yBiuPb y1zVCf HNeRed M9Bg4d"
       )[0];
-      //  console.log(mutee)
-      
+
       mutee.addEventListener("click", () => {
         muteVideoRecording = !muteVideoRecording;
-        //  console.log(muteVideoRecording, "mute video ")
-        console.log(
-          "outside meeting", "is meeting muted", muteVideoRecording)
       });
-      
+
       window.clearInterval(insertingmute);
     }
-    // let insideMute= document.getElementsByClassName("VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c uaILN JxICCe HNeRed Uulb3c")[0];
-    // console.log(insideMute)
-  } catch (err) {
-    console.log(err);
-  }
+  } catch (err) {}
 }, 500);
 
 let insideMuteInterval = setInterval(() => {
@@ -189,25 +172,17 @@ let insideMuteInterval = setInterval(() => {
         "VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c uaILN JxICCe Uulb3c"
       )[0];
 
-
-      
       insideMute.addEventListener("click", () => {
-   
         muteVideoRecording = !muteVideoRecording;
-        console.log(
-          "inside meeting", "is meeting muted", muteVideoRecording)
-        //  console.log(muteVideoRecording, "mute video ")
         if (muteVideoRecording === true) {
           handleMute();
         } else {
           handleUnMute();
         }
       });
-      //  console.log(muteVideoRecording, "mute video ")
       window.clearInterval(insideMuteInterval);
     }
   } catch (err) {
-    // console.log(err);
   }
 }, 500);
 
@@ -239,43 +214,31 @@ function insertButton() {
 }
 
 async function merakiClassChecker(url) {
-  // const API_URL = "https://dev-api.navgurukul.org/classes";
-  // const token =
-  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjM5Nzc2IiwiZW1haWwiOiJzaGl2YW5zaEBuYXZndXJ1a3VsLm9yZyIsImlhdCI6MTY3OTAzNTE4OCwiZXhwIjoxNzEwNTkyNzg4fQ.Ayzgfkk9k6PE_kaybCAznNeEXmF01zp7pLa5zOQ0f4k";
 
-    const data = await fetch("https://dev-api.navgurukul.org/classes", {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjM5Nzc2IiwiZW1haWwiOiJzaGl2YW5zaEBuYXZndXJ1a3VsLm9yZyIsImlhdCI6MTY3OTAzNTE4OCwiZXhwIjoxNzEwNTkyNzg4fQ.Ayzgfkk9k6PE_kaybCAznNeEXmF01zp7pLa5zOQ0f4k`,
-        "version-code": 99,
+  const data = await fetch("https://dev-api.navgurukul.org/classes", {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjM5Nzc2IiwiZW1haWwiOiJzaGl2YW5zaEBuYXZndXJ1a3VsLm9yZyIsImlhdCI6MTY3OTAzNTE4OCwiZXhwIjoxNzEwNTkyNzg4fQ.Ayzgfkk9k6PE_kaybCAznNeEXmF01zp7pLa5zOQ0f4k`,
+      "version-code": 99,
     },
-  })
+  });
   let parsed_data = await data.json();
-  // console.log(parsed_data, "parsed data")
   for (let ind = 0; ind < parsed_data.length; ind++) {
     if (parsed_data[ind].meet_link === url) {
-      flag = true
+      flag = true;
       break;
     }
   }
   return flag;
 }
 
-let meet_url = window.location.href.slice(0,36);
-console.log(meet_url)
+let meet_url = window.location.href.slice(0, 36);
 const checked_url = merakiClassChecker(meet_url).then((res) =>
-  console.log(res, "checked url promise", flag,"returned value")
-
-  
+  console.log(res, "checked url promise", flag, "returned value")
 );
 
-console.log(merakiClassChecker(meet_url), "checked meet url")
-
-// console.log(checked_url, "checked url");
-
 setInterval(insertButton, 1000);
-
 
 async function start() {
   startTime = new Date();
@@ -294,8 +257,8 @@ const getMeetingName = () => {
 
 let stop = (STOP = () => {
   clearInterval(startAttendanceTracker);
+  // clearInterval(lastSeenInterval)
 
-  //   let studentsJoiningTime = [];
   let mapKeys = studentDetails.keys();
   for (i = 0; i < studentDetails.size; i++) {
     let studentName = mapKeys.next().value;
@@ -305,7 +268,8 @@ let stop = (STOP = () => {
   for (studentName of sortedtstudentsNameSet) {
     let data = studentDetails.get(studentName);
     studentsAttendedDuration.push(data[0].toString());
-    // studentsJoiningTime.push(data[1]);
+    studentsJoiningTime.push(data[2].toString())
+    lastSeenAt.push(data[3].toString())
   }
   const end_time = new Date();
 
@@ -317,12 +281,18 @@ let stop = (STOP = () => {
     meeting_title: getMeetingName().replace("Meet - ", ""),
     meeting_time: startTime.toISOString(),
     isMerakiCall: flag,
+    studentsJoiningTime: JSON.stringify(studentsJoiningTime),
+    lastSeenAt: JSON.stringify(lastSeenAt)
   };
 
   record.meet_duration = meetingDuration;
+
+  console.log(record, "The meeting Record")
 });
 
 function attendanceTracker() {
+  console.log(studentDetails, "Student Details")
+  // console.log(studentsNameSet, "Student name set")
   let currentlyPresentStudents = document.getElementsByClassName("zWGUib");
   if (currentlyPresentStudents.length > 0) {
     studentsNameSet.clear();
@@ -344,29 +314,43 @@ function attendanceTracker() {
         let joiningTime = new Date().toLocaleTimeString();
         let currStatus = 1;
         let data = [];
+        let startMeetingTime;
+        let lastSeenAt = new Date().toLocaleTimeString()
+        if(startMeetingTime==null){
+          startMeetingTime = new Date().toLocaleTimeString()
+        }
+          if(isAttendanceWorking){
+          let lastSeenInterval =   setInterval(()=>{
+              
+          lastSeenAt = new Date().toLocaleTimeString()
+          
+          data[3]= lastSeenAt
+            },1000)
+          }
+
         data.push(currStatus);
-        data.push(joiningTime);
+        data.push(joiningTime)
+        data.push(startMeetingTime);
+        data.push(lastSeenAt)
         studentDetails.set(studentName, data);
+        console.log(isAttendanceWorking, "is attendace working")
+        console.log(data, "Student Data")
       }
     }
     if (studentsNameSet.size - 1 == -1) {
       goingToStop += 1;
     } else {
       meetingDuration = toTimeFormat(totalClassDuration);
-      // meetTimeBtn.innerHTML = toTimeFormat(totalClassDuration);
       totalClassDuration += 1;
       goingToStop = 0;
     }
     if (goingToStop == 2) {
       isAttendanceWorking = false;
-      // meetTimeBtn.innerHTML = "Track Attendance";
-      // meetTimeBtn.style.border = "2px solid #C5221F";
       goingToStop = 0;
       stop();
     }
   } else {
     try {
-      // ui_buttons[buttonClickInd % ui_buttons.length].click();
       ui_buttons[1].click();
       buttonClickInd += 1;
       goingToStop = 0;
@@ -374,8 +358,6 @@ function attendanceTracker() {
       goingToStop += 1;
       if (goingToStop == 2) {
         isAttendanceWorking = false;
-        // meetTimeBtn.innerHTML = "Track Attendance";
-        // meetTimeBtn.style.border = "2px solid #C5221F";
         goingToStop = 0;
         stop();
       }
@@ -437,7 +419,6 @@ function handleMute() {
   if (videoRecordingEnabled === true) {
     chrome.runtime.sendMessage({ action: "muteAudio", message: true });
   } else {
-    // console.log("recording not enabled");
   }
 }
 function handleUnMute() {
@@ -468,7 +449,6 @@ function StartVideoRecording() {
 }
 
 async function stopVideoRecording() {
-  
   window.onbeforeunload = null;
   // stop timer for video duration calculation:-
   clearInterval(intervalId);
@@ -484,22 +464,6 @@ async function stopVideoRecording() {
     attendies_data: JSON.stringify(record),
   };
   if (flag === true) {
-    setTimeout(() => {
-      fetch("https://merd-api.merakilearn.org/attendance", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Success:", data);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    }, 2000);
   }
 }
 
@@ -525,11 +489,8 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       meetTimeBtn.innerText = `${hours}:${minutes}:${seconds}`;
       duration += 1000;
     }, 1000);
-    // console.log("Received message from background:", message.data);
-    // Handle the message and perform actions in the content script
   }
   if (message.message === "PopupClosed") {
-    // console.log("Recording ended");
     recButtonsContainer.innerHTML = "";
     recButtonsContainer.appendChild(redDot);
     recButtonsContainer.appendChild(recSessionTxt);
@@ -540,4 +501,4 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   }
 });
 
-window.onbeforeunload = null
+window.onbeforeunload = null;
