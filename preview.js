@@ -15,7 +15,7 @@ let totalMeetingDurationSpan = document.querySelector(
 let resultArr = [];
 let totalSize = 1000;
 let arrayBufferVideo = null;
-
+let chunks = []
 let accessKeyId = "";
 let secretAccessKey = "";
 let sessionToken = "";
@@ -30,6 +30,8 @@ const modal = document.getElementById("myModal");
 
 let uploadPara = document.querySelector("#upload-para");
 let submitBtn = document.querySelector("#aws-upload");
+
+console.log(chunks, "chunks")
 
 function getChromeLocalStorage(key) {
   return new Promise((resolve, reject) => {
@@ -178,6 +180,7 @@ async function getData() {
     }
   });
 }
+
 
 chrome.storage.local.get("attendanceRecord", (result) => {
   if (chrome.runtime.lastError) {

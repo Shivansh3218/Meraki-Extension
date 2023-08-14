@@ -10,7 +10,6 @@ let startRecordMeetingInterval = setInterval(() => {
   }
 }, 100);
 
-
 let startRec = document.querySelector("#start-recording");
 let stopRec = document.querySelector("#stop-recording");
 
@@ -18,7 +17,7 @@ let isMuted;
 let stream = null;
 let audio = null;
 let mixedStream = null;
-let chunks = [];
+ chunks = [];
 let recorder = null;
 let isRecordingVideo = false;
 const previewUrl = chrome.runtime.getURL("preview.html");
@@ -76,7 +75,7 @@ function handlePause() {
 }
 
 function handleDataAvailable(e) {
-  console.log(chunks);
+  // console.log(chunks);
   if (e.data) {
     chunks.push(e.data);
     const blobToBase64 = (blob) => {
